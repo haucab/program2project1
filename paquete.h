@@ -61,8 +61,8 @@ struct ReciboPaquete {
     return recibo;
 }
 
-void agregarEnvio(
-        struct Sucursal** cabeza,
+bool agregarEnvio(
+        struct Sucursal* cabeza,
         char codeDestinationSucursal[25],
         char codeOriginSucursal[25],
         struct Date* dateDelivery,
@@ -73,17 +73,35 @@ void agregarEnvio(
         long long weightPackageGrams,
         long long debitedCost,
         char idSender[15],
-        char idReceiver[15]) {
-    struct EnvioPaquete* datoE = __private__newEnvioPaquete(codeDestinationSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
+		char idReceiver[15]) {
+	if (stringIgualAString(codeDestinationSucursal, codeOriginSucursal)) return false;
+
+	struct Sucursal* s = cabeza;
+	bool hasEnvio = false, hasRecibo = false;
+    while (s && !hasEnvio && !hasRecibo) {
+		if (!hasEnvio) 
+			if (stringIgualAString(s->code, codeOriginSucursal)) hasEnvio = true;
+
+		if (!hasRecibo)
+			if (stringIgualAString(s->code, codeDestinationSucursal)) hasRecibo = true;
+
+		s = s->prox;
+	}
+	
+	s = cabeza;
+	if (hasEnvio && hasRecibo) while (s && (hasEnvio || hasRecibo)) {
+		if (hasEnvio) if (stringIgualAString(s->code, codeOriginSucursal)) {
+			struct EnvioPaquete* datoE = __private__newEnvioPaquete(codeDestinationSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
+			struct EnvioPaquete* cabezaE = s->sentPackages;
+			//TODO FINISH
+		}
+		if (hasRecibo) if (stringIgualAString(s->code, codeDestinationSucursal)){
+			//TODO FINISH
+		} 
+	} else return false;
+
+    
     struct ReciboPaquete* datoR = __private__newReciboPaquete(codeOriginSucursal, codeDelivery);
-
-    struct Sucursal* s = *cabeza;
-    if (!s) return;
-
-    // TODO FINISH
-    while (s->prox) s = s->prox;
-    s->prox = datoE;
-    datoE->prev = s;
 }
 // seal __private__new{Envio,Recibo}Paquete from outside calling
 #define __private__newEnvioPaquete cant_call_private_function
