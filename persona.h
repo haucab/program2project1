@@ -6,9 +6,8 @@
 //TODO REFORMAR
 
 struct Persona {
-	long long id; // ID puede ser Cedula o Pasaporte
-	char* fnames, * lnames, * streetaddress, * email, * city, * state, * country;
-	long long phoneNumber;
+	char id[15]; // ID puede ser Cedula o Pasaporte
+	char fnames[50], lnames[50], streetaddress[150], email[50], city[30], state[30], country[30], phoneNumber[20];
 	struct Persona* prev, * prox;
 };
 
@@ -18,25 +17,19 @@ struct BusquedaPersonas {
 };
 
 /*private*/ struct Persona* __private__newPersona(
-        long long id, // ID puede ser Cedula o Pasaporte
-        char* fnames,
-        char* lnames,
-        char* streetaddress,
-        char* email,
-        char* city,
-        char* state,
-        char* country,
-        long long phoneNumber) {
+        char id[15], // ID puede ser Cedula o Pasaporte
+        char fnames[50], char lnames[50], char streetaddress[150], char email[50],
+        char city[30], char state[30], char country[30], char phoneNumber[20]) {
     struct Persona* persona = (struct Persona*) malloc(sizeof(struct Persona));
-    persona->id = id;
-    persona->fnames = fnames;
-    persona->lnames = lnames;
-    persona->streetaddress = streetaddress;
-    persona->email = email;
-    persona->city = city;
-    persona->state = state;
-    persona->country = country;
-    persona->phoneNumber = phoneNumber;
+    strcpy_s(persona->id, 15, id);
+    strcpy_s(persona->fnames, 50, fnames);
+    strcpy_s(persona->lnames, 50, lnames);
+    strcpy_s(persona->streetaddress, 150, streetaddress);
+    strcpy_s(persona->email, 50, email);
+    strcpy_s(persona->city, 30, city);
+    strcpy_s(persona->state, 30, state);
+    strcpy_s(persona->country, 30, country);
+    strcpy_s(persona->phoneNumber, 20, phoneNumber);
 
     persona->prev = NULL;
     persona->prox = NULL;
@@ -46,15 +39,9 @@ struct BusquedaPersonas {
 
 void agregarPersona(
         struct Persona** cabeza,
-        long long id, // ID puede ser Cedula o Pasaporte
-        char* fnames,
-        char* lnames,
-        char* streetaddress,
-        char* email,
-        char* city,
-        char* state,
-        char* country,
-        long long phoneNumber) {
+        char id[15], // ID puede ser Cedula o Pasaporte
+        char fnames[50], char lnames[50], char streetaddress[150], char email[50],
+        char city[30], char state[30], char country[30], char phoneNumber[20]) {
     struct Persona* dato = __private__newPersona(id, fnames, lnames, streetaddress, email, city, state, country, phoneNumber);
 
     struct Persona* p = *cabeza;
@@ -67,22 +54,20 @@ void agregarPersona(
         dato->prev = p;
     }
 }
-// seal __private__newPersona from outside calling
-#define __private__newPersona cant_call_private_function
 
-struct Persona* consultarPersonaID(struct Persona** cabeza, long long id) {
+struct Persona* consultarPersonaID(struct Persona** cabeza, char id[15]) {
     struct Persona* p = *cabeza;
     if (!p) return NULL;
     else {
         while (p) {
-            if (p->id == id) return p;
+            if (stringIgualAString(p->id, id)) return p;
             p = p->prox;
         }
         return NULL;
     }
 }
 
-/*private*/ bool __private__nameMatch(struct Persona* s, char* fnames, char* lnames) {
+/*private*/ bool __private__nameMatch(struct Persona* s, char fnames[50], char lnames[50]) {
     if (fnames) {
         if (stringContieneAString(s->lnames, fnames)) {
             if (!lnames || stringContieneAString(s->lnames, lnames)) return true;
@@ -93,7 +78,7 @@ struct Persona* consultarPersonaID(struct Persona** cabeza, long long id) {
     return false;
 }
 
-struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabeza, char* fnames, char* lnames) {
+struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabeza, char fnames[50], char lnames[50]) {
     if (!fnames && !lnames) return NULL;
 
     struct Persona* p = *cabeza;
@@ -113,16 +98,14 @@ struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabeza, char* f
         return NULL;
     }
 }
-// seal __private__nameMatch from outside calling
-#define __private__nameMatch cant_call_private_function
 
-void eliminarPersona(struct Persona** cabeza, long long id) {
+void eliminarPersona(struct Persona** cabeza, char id[15]) {
     struct Persona* p = *cabeza;
     if (!p) return;
     else while (p) {
-        if (p->id == id) {
-            p->prev->prox = p->prox;
-            p->prox->prev = p->prev;
+        if (stringIgualAString(p->id, id)) {
+            if (p->prev) p->prev->prox = p->prox;
+            if (p->prox) p->prox->prev = p->prev;
             free(p);
             return;
         }

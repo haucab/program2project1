@@ -30,16 +30,14 @@ struct BusquedaEnvios {
     b->prox = __private__newBusquedaEnvios(valor);
     b->prox->prev = b;
 }
-// seal __private__newBusquedaEnvios from outside calling
-#define __private__newBusquedaEnvios cant_call_private_function
 
-struct BusquedaEnvios* buscarEnviosPorCedulaEmisor(struct Sucursal* lista, long long id) {
+struct BusquedaEnvios* buscarEnviosPorCedulaEmisor(struct Sucursal* lista, char id[15]) {
     struct Sucursal* s = lista;
     struct BusquedaEnvios* cabeza = NULL;
     while (s) {
         struct EnvioPaquete* p = s->sentPackages;
         while (p) {
-            if (p->idSender == id) {
+            if (stringIgualAString(p->idSender, id)) {
                 __private__agregarEnvio(&cabeza, p);
             }
             p = p->prox;
@@ -49,15 +47,13 @@ struct BusquedaEnvios* buscarEnviosPorCedulaEmisor(struct Sucursal* lista, long 
 
     return cabeza;
 }
-// seal __private__agregarEnvio from outside calling
-#define __private__agregarEnvio cant_call_private_function
 
-struct EnvioPaquete* buscarEnviosPorCodigoDeTransaccion(struct Sucursal* lista, long long id, long long codeDelivery) {
+struct EnvioPaquete* buscarEnviosPorCodigoDeTransaccion(struct Sucursal* lista, char id[15], char codeDelivery[25]) {
     struct BusquedaEnvios* b = buscarEnviosPorCedulaEmisor(lista, id);
     struct EnvioPaquete* e = NULL;
     while (b) {
         e = b->valor;
-        if (e->codeDelivery == codeDelivery) return e;
+        if (stringIgualAString(e->codeDelivery, codeDelivery)) return e;
         b = b->prox;
     }
 

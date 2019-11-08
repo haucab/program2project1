@@ -12,13 +12,8 @@ struct Sucursal {
 
 /*private*/ struct Sucursal* __private__newSucursal(
         char code[25], // Codigo especial de sucursal
-        char name[50],
-        char streetaddress[150],
-        char email[50],
-        char city[30],
-        char state[30],
-        char country[30],
-        char phoneNumber[20]) {
+        char name[50], char streetaddress[150], char email[50],
+        char city[30], char state[30], char country[30], char phoneNumber[20]) {
     struct Sucursal* sucursal = (struct Sucursal*) malloc(sizeof(struct Sucursal));
     strcpy_s(sucursal->code, 25, code);
     strcpy_s(sucursal->name, 50, name);
@@ -40,13 +35,8 @@ struct Sucursal {
 void agregarSucursal(
         struct Sucursal** cabeza,
         char code[25], // Codigo especial de sucursal
-        char name[50],
-        char streetaddress[150],
-        char email[50],
-        char city[30],
-        char state[30],
-        char country[30],
-        char phoneNumber[20]) {
+        char name[50], char streetaddress[150], char email[50],
+        char city[30], char state[30], char country[30], char phoneNumber[20]) {
     struct Sucursal* dato = __private__newSucursal(code, name, streetaddress, email, city, state, country, phoneNumber);
 
     struct Sucursal* s = *cabeza;
@@ -59,8 +49,6 @@ void agregarSucursal(
         dato->prev = s;
     }
 }
-// seal __private__newSucursal from outside calling
-#define __private__newSucursal cant_call_private_function
 
 struct Sucursal* consultarSucursal(struct Sucursal** cabeza, char code[25]) {
     struct Sucursal* s = *cabeza;
@@ -79,8 +67,8 @@ void eliminarSucursal(struct Sucursal** cabeza,  char code[25]) {
     if (!s) return;
     else while (s) {
         if (stringIgualAString(s->code, code)) {
-            s->prev->prox = s->prox;
-            s->prox->prev = s->prev;
+            if (s->prev) s->prev->prox = s->prox;
+            if (s->prox) s->prox->prev = s->prev;
             free(s);
             return;
         }
