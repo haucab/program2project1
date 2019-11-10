@@ -2,15 +2,14 @@
 #define PROJECT1_PAQUETE_H
 
 #include "common.h"
-#include "date.h"
-#include "sucursal.h"
+#include "paquete_validate.h"
 
 struct EnvioPaquete {
 	char codeDestinationSucursal[25];
 	struct Date* dateDelivery, * dateReceived;
 	bool insured;
 	char description[50], codeDelivery[25];
-	long long weightPackageGrams, debitedCost;
+	unsigned long long weightPackageGrams, debitedCost;
 	char idSender[15], idReceiver[15]; // ID puede ser Cedula o Pasaporte
 	struct EnvioPaquete* prev, * prox;
 };
@@ -25,7 +24,7 @@ struct ReciboPaquete {
         char codeDestinationSucursal[25],
         struct Date* dateDelivery, struct Date* dateReceived,
         bool insured, char description[50], char codeDelivery[25],
-        long long weightPackageGrams, long long debitedCost,
+        unsigned long long weightPackageGrams, unsigned long long debitedCost,
         char idSender[15], char idReceiver[15]) {
     struct EnvioPaquete* envio = (struct EnvioPaquete*) malloc(sizeof(struct EnvioPaquete));
     strcpy_s(envio->codeDestinationSucursal, 25, codeDestinationSucursal);
@@ -55,55 +54,68 @@ struct ReciboPaquete {
     return recibo;
 }
 
-bool agregarPaquete(struct Sucursal* cabeza,
+ValidationError_Paquete validatePaqueteCodeDelivery(struct Sucursal* cabeza, char codeDelivery[25]) {
+    struct Sucursal* s = cabeza;
+    while (s) {
+        struct EnvioPaquete* e = s->sentPackages;
+        while (e) {
+            if (stringIgualAString(e->codeDelivery, codeDelivery)) return ERR_DELIVERY_CODE_DUPLICATE;
+            e = e->prox;
+        }
+        s = s->prox;
+    }
+    return PAQUETE_OK;
+}
+
+ValidationError_Paquete agregarPaquete(struct Sucursal* cabeza,
         char codeDestinationSucursal[25], char codeOriginSucursal[25],
         struct Date* dateDelivery, struct Date* dateReceived,
         bool insured, char description[50], char codeDelivery[25],
-        long long weightPackageGrams, long long debitedCost,
+        unsigned long long weightPackageGrams, unsigned long long debitedCost,
         char idSender[15], char idReceiver[15]) {
-	if (stringIgualAString(codeDestinationSucursal, codeOriginSucursal)) return false;
+	ValidationError_Paquete result = validatePaquete(cabeza, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
+    if (result != PAQUETE_OK) return result;
 
 	struct Sucursal* s = cabeza;
-	bool hasEnvio = false, hasRecibo = false;
-    while (s && (!hasEnvio || !hasRecibo)) {
-		if (!hasEnvio) if (stringIgualAString(s->code, codeOriginSucursal)) hasEnvio = true;
-		if (!hasRecibo) if (stringIgualAString(s->code, codeDestinationSucursal)) hasRecibo = true;
-		s = s->prox;
-	}
-	
-	s = cabeza;
-	if (hasEnvio && hasRecibo) while (s && (hasEnvio || hasRecibo)) {
-		if (hasEnvio) if (stringIgualAString(s->code, codeOriginSucursal)) {
-			struct EnvioPaquete* datoE = __private__newEnvioPaquete(codeDestinationSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
-			struct EnvioPaquete* e = s->sentPackages;
-			if (!e) {
-			    s->sentPackages = datoE;
-			} else {
-                while (e->prox) e = e->prox;
+	bool hasEnvio = true, hasRecibo = true;
+    while (s && (hasEnvio || hasRecibo)) {
+        if (hasEnvio)
+            if (stringIgualAString(s->code, codeOriginSucursal)) {
+                struct EnvioPaquete *datoE = __private__newEnvioPaquete(codeDestinationSucursal, dateDelivery,
+                                                                        dateReceived, insured, description,
+                                                                        codeDelivery, weightPackageGrams, debitedCost,
+                                                                        idSender, idReceiver);
+                struct EnvioPaquete *e = s->sentPackages;
+                if (!e) {
+                    s->sentPackages = datoE;
+                } else {
+                    while (e->prox) e = e->prox;
 
-                e->prox = datoE;
-                datoE->prev = e;
+                    e->prox = datoE;
+                    datoE->prev = e;
+                }
+                hasEnvio = false;
             }
-			hasEnvio = false;
-		}
-		if (hasRecibo) if (stringIgualAString(s->code, codeDestinationSucursal)) {
-		    struct ReciboPaquete* datoR = __private__newReciboPaquete(codeOriginSucursal, codeDelivery);
-		    struct ReciboPaquete* r = s->receivedPackages;
-		    if (!r) {
-		        s->receivedPackages = datoR;
-		    } else {
-		        while (r->prox) r = r->prox;
+        if (hasRecibo)
+            if (stringIgualAString(s->code, codeDestinationSucursal)) {
+                struct ReciboPaquete *datoR = __private__newReciboPaquete(codeOriginSucursal, codeDelivery);
+                struct ReciboPaquete *r = s->receivedPackages;
+                if (!r) {
+                    s->receivedPackages = datoR;
+                } else {
+                    while (r->prox) r = r->prox;
 
-                r->prox = datoR;
-		        datoR->prev = r;
-		    }
-			hasRecibo = false;
-		} 
-	} else return false;
+                    r->prox = datoR;
+                    datoR->prev = r;
+                }
+                hasRecibo = false;
+            }
+        s = s->prox;
+    }
+	return PAQUETE_OK;
 }
 
 struct EnvioPaquete* consultarEnvio(struct Sucursal** cabeza, char codeDelivery[25]) {
-    //TODO REFORMAR
     struct Sucursal* s = *cabeza;
     if (!s) return NULL;
     else {

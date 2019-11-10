@@ -2,8 +2,7 @@
 #define PROJECT1_PERSONA_H
 
 #include "common.h"
-
-//TODO REFORMAR
+#include "persona_validate.h"
 
 struct Persona {
 	char id[15]; // ID puede ser Cedula o Pasaporte
@@ -37,11 +36,24 @@ struct BusquedaPersonas {
     return persona;
 }
 
-void agregarPersona(
+ValidationError_Persona validatePersonaId(struct Persona** cabeza,
+                                          char id[15] /* ID puede ser Cedula o Pasaporte */) {
+    struct Persona* p = *cabeza;
+    while (p) {
+        if (stringIgualAString(p->id, id)) return ERR_DUPLICATE_PERSON_ID;
+        p = p->prox;
+    }
+    return PERSONA_OK;
+}
+
+ValidationError_Persona agregarPersona(
         struct Persona** cabeza,
         char id[15], // ID puede ser Cedula o Pasaporte
         char fnames[50], char lnames[50], char streetaddress[150], char email[50],
         char city[30], char state[30], char country[30], char phoneNumber[20]) {
+    ValidationError_Persona result = validatePersona(cabeza, id, email);
+    if (result != PERSONA_OK) return result;
+
     struct Persona* dato = __private__newPersona(id, fnames, lnames, streetaddress, email, city, state, country, phoneNumber);
 
     struct Persona* p = *cabeza;
@@ -53,6 +65,7 @@ void agregarPersona(
         p->prox = dato;
         dato->prev = p;
     }
+    return PERSONA_OK;
 }
 
 struct Persona* consultarPersonaID(struct Persona** cabeza, char id[15]) {

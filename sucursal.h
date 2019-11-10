@@ -1,6 +1,9 @@
 #ifndef PROJECT1_SUCURSAL_H
 #define PROJECT1_SUCURSAL_H
 
+#include "common.h"
+#include "sucursal_validate.h"
+
 struct Sucursal {
 	char code[25]; // Codigo especial de sucursal
 	char name[50], streetaddress[150], email[50], city[30], state[30], country[30], phoneNumber[20];
@@ -32,11 +35,24 @@ struct Sucursal {
     return sucursal;
 }
 
-void agregarSucursal(
+ValidationError_Sucursal validateSucursalId(struct Sucursal** cabeza,
+                                            char code[15] /* ID puede ser Cedula o Pasaporte */) {
+    struct Sucursal* p = *cabeza;
+    while (p) {
+        if (stringIgualAString(p->code, code)) return ERR_DUPLICATE_SUCURSAL_ID;
+        p = p->prox;
+    }
+    return SUCURSAL_OK;
+}
+
+ValidationError_Sucursal agregarSucursal(
         struct Sucursal** cabeza,
         char code[25], // Codigo especial de sucursal
         char name[50], char streetaddress[150], char email[50],
         char city[30], char state[30], char country[30], char phoneNumber[20]) {
+    ValidationError_Sucursal result = validateSucursal(cabeza, code, email);
+    if (result != SUCURSAL_OK) return result;
+
     struct Sucursal* dato = __private__newSucursal(code, name, streetaddress, email, city, state, country, phoneNumber);
 
     struct Sucursal* s = *cabeza;
@@ -48,6 +64,7 @@ void agregarSucursal(
         s->prox = dato;
         dato->prev = s;
     }
+    return SUCURSAL_OK;
 }
 
 struct Sucursal* consultarSucursal(struct Sucursal** cabeza, char code[25]) {
