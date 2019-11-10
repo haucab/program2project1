@@ -24,7 +24,6 @@ ValidationError_Sucursal validateSucursal(struct Sucursal** cabeza,
     if (validationTotal != SUCURSAL_OK) return validationTotal;
 
     return validateSucursalEmail(email);
-    //
 }
 
 #endif //PROJECT1_SUCURSAL_VALIDATE_H
