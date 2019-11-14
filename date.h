@@ -19,4 +19,21 @@ struct Date* newDate(unsigned short day, unsigned short month, short year, Valid
     return d;
 }
 
+void dateToString(struct Date* d, char s[15]) {
+    char buf[6];
+
+    sprintf_s(buf, 3, "%d", d->day);
+    strcpy_s(s, 15, buf);
+
+    strcat_s(s, 15, "/");
+
+    sprintf_s(buf, 3, "%d", d->month);
+    strcat_s(s, 15, buf);
+
+    strcat_s(s, 15, "/");
+
+    sprintf_s(buf, 3, "%d", d->year);
+    strcat_s(s, 15, buf);
+}
+
 #endif //PROJECT1_DATE_H

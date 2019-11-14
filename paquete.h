@@ -115,6 +115,31 @@ ValidationError_Paquete agregarPaquete(struct Sucursal* cabeza,
 	return PAQUETE_OK;
 }
 
+void printEnvio(struct EnvioPaquete* envio, struct ReciboPaquete* recibo) {
+    printf("    Codigo envio: %s\n", envio->codeDelivery);
+    printf("    Sucursal origen: %s\n", recibo->codeOriginSucursal);
+    printf("[1] Sucursal destino: %s\n", envio->codeDestinationSucursal);
+    char buf[15];
+    dateToString(envio->dateDelivery, buf);
+    printf("[2] Fecha Envio: %s\n", buf);
+    dateToString(envio->dateReceived, buf);
+    printf("[3] Fecha Recibo: %s\n", buf);
+    if (envio->insured) {
+        printf("[4] Asegurado: Si\n");
+    } else {
+        printf("[4] Asegurado: No\n");
+    }
+    printf("[5] Descripcion: %s\n", envio->description);
+
+    char buf2[10];
+    sprintf_s(buf2, 10, "%d", envio->weightPackageGrams);
+    printf("[6] Peso (g): %s\n", buf2);
+    sprintf_s(buf2, 10, "%d", envio->debitedCost);
+    printf("[7] Monto facturado: %s\n", buf2);
+    printf("[8] Cedula/Pasaporte emisor: %s\n", envio->idSender);
+    printf("[9] Cedula/Pasaporte receptor: %s\n", envio->idReceiver);
+}
+
 struct EnvioPaquete* consultarEnvio(struct Sucursal** cabeza, char codeDelivery[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return NULL;
@@ -147,6 +172,37 @@ struct ReciboPaquete* consultarRecibo(struct Sucursal** cabeza, char codeDeliver
     }
 }
 
+void consultarEnvioRecibo(struct Sucursal** cabeza, char codeDelivery[25], struct EnvioPaquete** envio, struct ReciboPaquete** recibo) {
+    struct Sucursal* s = *cabeza;
+    if (!s) return;
+    else {
+        bool hasEnvio = false, hasRecibo = false;
+        while (s && (!hasEnvio || !hasRecibo)) {
+            if (!hasEnvio) {
+                struct EnvioPaquete *e = s->sentPackages;
+                while (e && !hasEnvio) {
+                    if (stringIgualAString(e->codeDelivery, codeDelivery)) {
+                        *envio = e;
+                        hasEnvio = true;
+                    }
+                    e = e->prox;
+                }
+            }
+            if (!hasRecibo) {
+                struct ReciboPaquete *r = s->receivedPackages;
+                while (r && !hasRecibo) {
+                    if (stringIgualAString(r->codeDelivery, codeDelivery)) {
+                        *recibo = r;
+                        hasRecibo = true;
+                    }
+                    r = r->prox;
+                }
+            }
+            s = s->prox;
+        }
+    }
+}
+
 void eliminarEnvio(struct Sucursal** cabeza, char codeDelivery[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return;
@@ -154,6 +210,14 @@ void eliminarEnvio(struct Sucursal** cabeza, char codeDelivery[25]) {
         struct EnvioPaquete* e = s->sentPackages;
         while (e && e->prox)  {
             if (stringIgualAString(e->prox->codeDelivery, codeDelivery)) {
+                struct Date* d = e->dateDelivery;
+                e->dateDelivery = NULL;
+                free(d);
+
+                d = e->dateReceived;
+                e->dateReceived = NULL;
+                free(d);
+
                 struct EnvioPaquete* eaux = e->prox;
                 e->prox = eaux->prox;
                 if (eaux->prox) eaux->prox->prev = e;
