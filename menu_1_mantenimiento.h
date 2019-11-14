@@ -69,7 +69,7 @@ void __restricted__MenuMantenimientoPrintf(void* ignored) {
 void menuMantenimientoPersonas_op1(struct Persona** cabeza);
 void menuMantenimientoPersonas_op2(struct Persona** cabeza);
 void menuMantenimientoPersonas_op3(struct Persona** cabeza);
-void menuMantenimientoPersonas_op4(struct Persona** cabeza);
+void menuMantenimientoPersonas_op4(struct Persona** cabezaP, struct Sucursal** cabezaS);
 void menuMantenimientoPersonas_op5(struct Persona** cabeza);
 void menuMantenimientoPersonas(struct Persona** cabeza) {
     int opc = 99;
@@ -349,7 +349,7 @@ void menuMantenimientoPersonas_op3(struct Persona** cabeza) {
 }
 
 // v - Eliminar persona
-void menuMantenimientoPersonas_op4(struct Persona** cabeza) {
+void menuMantenimientoPersonas_op4(struct Persona** cabezaP, struct Sucursal** cabezaS) {
     system("cls");
     printf("ELIMINAR PERSONA\n\n");
 
@@ -357,7 +357,7 @@ void menuMantenimientoPersonas_op4(struct Persona** cabeza) {
     printf("Cedula/Pasaporte de la persona a eliminar: ");
     gets_truncate(id, 15);
 
-    struct Persona* p = consultarPersonaID(cabeza, id);
+    struct Persona* p = consultarPersonaID(cabezaP, id);
     if (!p) {
         printf("ERROR: La identificacion dada no existe en el sistema.\n\n");
     } else {
@@ -366,11 +366,25 @@ void menuMantenimientoPersonas_op4(struct Persona** cabeza) {
         printPersona(p);
         printf("----------------------------------------------------------\n");
         printf("Esta seguro de que desea eliminar la persona indicada?\n");
+        printf("NOTA: Cualquier envio hecho por dicha persona sera eliminado.\n");
         printf("(Presione la tecla 's'para confirmar, cualquier otra tecla para cancelar) > ");
         int currchar = getcharnobuf();
         if (currchar == 's' || currchar == 'S') {
             printf("INFO: Procesando...\n");
-            eliminarPersona(cabeza, id);
+            eliminarPersona(cabezaP, id);
+            struct Sucursal* s = *cabezaS;
+            while (s) {
+                struct EnvioPaquete* paquete = s->sentPackages;
+                while (paquete) {
+                    if (stringIgualAString(paquete->idSender, id)) {
+                        paquete = paquete->prox;
+                        eliminarEnvio(cabezaS, id);
+                    } else {
+                        paquete = paquete->prox;
+                    }
+                }
+                s = s->prox;
+            }
             printf("INFO: Operacion realizada exitosamente.\n");
         } else {
             printf("INFO: Operacion cancelada por el usuario.\n");
@@ -380,7 +394,7 @@ void menuMantenimientoPersonas_op4(struct Persona** cabeza) {
 }
 
 // v - Consultar persona por nombre
-void menuMantenimientoPersonas_op5(struct Persona** cabeza){
+void menuMantenimientoPersonas_op5(struct Persona** cabezaP){
     system("cls");
     printf("CONSULTAR PERSONA POR NOMBRE\n\n");
 
@@ -396,7 +410,7 @@ void menuMantenimientoPersonas_op5(struct Persona** cabeza){
         printf("ERROR: Debe al menos rellenar una de las anteriores casillas.\n\n");
     }
 
-    struct BusquedaPersonas* bp = consultarPersonaNombre(cabeza, fnames, lnames);
+    struct BusquedaPersonas* bp = consultarPersonaNombre(cabezaP, fnames, lnames);
     if (!bp) {
         printf("\n");
         printf("INFO: No hay nadie registrado en el sistema con los parametros de busqueda dados.\n\n");

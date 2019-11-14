@@ -67,16 +67,16 @@ ValidationError_Paquete validatePaqueteCodeDelivery(struct Sucursal* cabeza, cha
     return PAQUETE_OK;
 }
 
-ValidationError_Paquete agregarPaquete(struct Sucursal* cabeza,
-        char codeDestinationSucursal[25], char codeOriginSucursal[25],
-        struct Date* dateDelivery, struct Date* dateReceived,
-        bool insured, char description[50], char codeDelivery[25],
-        unsigned long long weightPackageGrams, unsigned long long debitedCost,
-        char idSender[15], char idReceiver[15]) {
-	ValidationError_Paquete result = validatePaquete(cabeza, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
+ValidationError_Paquete agregarPaquete(struct Sucursal* cabezaS, struct Persona* cabezaP,
+                                       char codeDestinationSucursal[25], char codeOriginSucursal[25],
+                                       struct Date* dateDelivery, struct Date* dateReceived,
+                                       bool insured, char description[50], char codeDelivery[25],
+                                       unsigned long long weightPackageGrams, unsigned long long debitedCost,
+                                       char idSender[15], char idReceiver[15]) {
+	ValidationError_Paquete result = validatePaquete(cabezaS, cabezaP, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
     if (result != PAQUETE_OK) return result;
 
-	struct Sucursal* s = cabeza;
+	struct Sucursal* s = cabezaS;
 	bool hasEnvio = true, hasRecibo = true;
     while (s && (hasEnvio || hasRecibo)) {
         if (hasEnvio)

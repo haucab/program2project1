@@ -6,8 +6,10 @@
 #include "date.h"
 
 typedef enum {
-    PAQUETE_OK, ERR_DESTINATION_INVALID, ERR_ORIGIN_INVALID, ERR_DESTINATION_EQUALS_ORIGIN, ERR_DATE_MISMATCH, ERR_DELIVERY_CODE_DUPLICATE
+    PAQUETE_OK, ERR_DESTINATION_INVALID, ERR_ORIGIN_INVALID, ERR_DESTINATION_EQUALS_ORIGIN, ERR_DATE_MISMATCH, ERR_DELIVERY_CODE_DUPLICATE, ERR_SENDER_INVALID
 } ValidationError_Paquete;
+
+struct Persona; // Implemented in persona.h
 
 ValidationError_Paquete validatePaqueteOrigin(struct Sucursal* cabeza, char codeOriginSucursal[25]) {
     struct Sucursal* s = cabeza;
@@ -54,19 +56,28 @@ ValidationError_Paquete validatePaqueteDates(struct Date* dateDelivery, struct D
 
 ValidationError_Paquete validatePaqueteCodeDelivery(struct Sucursal* cabeza, char codeDelivery[25]); // Implemented in paquete.h
 
-ValidationError_Paquete validatePaquete(struct Sucursal* cabeza,
+bool __private__person_exists(struct Persona* cabeza, char *idSender);
+ValidationError_Paquete validatePaqueteSender(struct Persona* cabeza, char idSender[15]) {
+    if (__private__person_exists(cabeza, idSender)) return PAQUETE_OK;
+    else return ERR_SENDER_INVALID;
+}
+
+ValidationError_Paquete validatePaquete(struct Sucursal* cabezaS, struct Persona* cabezaP,
                                         char codeDestinationSucursal[25], char codeOriginSucursal[25],
                                         struct Date* dateDelivery, struct Date* dateReceived,
                                         bool insured, char description[50], char codeDelivery[25],
                                         unsigned long long weightPackageGrams, unsigned long long debitedCost,
                                         char idSender[15], char idReceiver[15]) {
-    ValidationError_Paquete validationTotal = validatePaqueteOriginDestination(cabeza, codeDestinationSucursal, codeOriginSucursal);
+    ValidationError_Paquete validationTotal = validatePaqueteOriginDestination(cabezaS, codeDestinationSucursal, codeOriginSucursal);
     if (validationTotal != PAQUETE_OK) return validationTotal;
 
     validationTotal = validatePaqueteDates(dateDelivery, dateReceived);
     if (validationTotal != PAQUETE_OK) return validationTotal;
 
-    return validatePaqueteCodeDelivery(cabeza, codeDelivery);
+    validationTotal = validatePaqueteCodeDelivery(cabezaS, codeDelivery);
+    if (validationTotal != PAQUETE_OK) return validationTotal;
+
+    return validatePaqueteSender(cabezaP, idSender);
 }
 
 #endif //PROJECT1_PAQUETE_VALIDATE_H

@@ -68,6 +68,17 @@ ValidationError_Persona agregarPersona(
     return PERSONA_OK;
 }
 
+bool __private__person_exists(struct Persona* cabeza, char *idSender) {
+    struct Persona* p = cabeza;
+
+    while (p) {
+        if (stringIgualAString(p->id, idSender))
+            return true;
+        p = p->prox;
+    }
+
+    return false;
+}
 struct Persona* consultarPersonaID(struct Persona** cabeza, char id[15]) {
     struct Persona* p = *cabeza;
     if (!p) return NULL;

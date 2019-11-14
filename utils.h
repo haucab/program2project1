@@ -5,6 +5,7 @@
 #include "common.h"
 #include "paquete.h"
 #include "sucursal.h"
+#include "persona.h"
 
 struct BusquedaEnvios {
     struct EnvioPaquete* valorE;
@@ -130,6 +131,7 @@ struct BusquedaEnvios* buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeE
 
     return cabeza;
 }
+
 struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* sucursal) {
     time_t rawtime;
     time(&rawtime);
@@ -140,8 +142,22 @@ struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* sucurs
     struct Date* end = (struct Date*) malloc(sizeof(struct Date));
     end->day = 32;
     end->month = 13;
-    end->year = (short)timeinfo.tm_year+1900; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+    end->year = (short)timeinfo.tm_year+1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
     return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(sucursal, start, end);
 }
+//
+//struct BusquedaPersonas* buscarPersonasPorSucursalConMayorCantidadEnvios(struct Sucursal* sucursal, struct Persona** cabezaP) {
+//    time_t rawtime;
+//    time(&rawtime);
+//    struct tm timeinfo;
+//    localtime_s(&timeinfo, &rawtime);
+//    ValidationError_Date ignored;
+//    struct Date* start = newDate((unsigned short)timeinfo.tm_mday, (unsigned short)timeinfo.tm_mon+1, (short)timeinfo.tm_year+1900, &ignored); // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+//    struct Date* end = (struct Date*) malloc(sizeof(struct Date));
+//    end->day = 32;
+//    end->month = 13;
+//    end->year = (short)timeinfo.tm_year+1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+//    return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(sucursal, start, end);
+//}
 
 #endif //PROJECT1_UTILS_H

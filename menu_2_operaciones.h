@@ -28,27 +28,27 @@ void __restricted__MenuEnviosPrintf(void* ignored) {
     printf(" > ");
 }
 
-void menuMantenimientoEnvios_op1(struct Sucursal** cabeza);
-void menuMantenimientoEnvios_op2(struct Sucursal** cabeza);
-void menuMantenimientoEnvios_op3(struct Sucursal** cabeza);
-void menuMantenimientoEnvios_op4(struct Sucursal** cabeza);
-void menuMantenimientoEnvios(struct Sucursal** cabeza){
+void menuOperaciones_op1(struct Sucursal** cabezaS, struct Persona** cabezaP);
+void menuOperaciones_op2(struct Sucursal** cabeza);
+void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP);
+void menuOperaciones_op4(struct Sucursal** cabeza);
+void menuOperaciones(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     int opc = 99;
     while (opc != 5) {
         system("cls");
         scanf_integer(&opc, &__restricted__MenuEnviosPrintf, NULL);
         switch (opc) {
             case 1:
-                menuMantenimientoEnvios_op1(cabeza);
+                menuOperaciones_op1(cabezaS, cabezaP);
                 break;
             case 2:
-                menuMantenimientoEnvios_op2(cabeza);
+                menuOperaciones_op2(cabezaS);
                 break;
             case 3:
-                menuMantenimientoEnvios_op3(cabeza);
+                menuOperaciones_op3(cabezaS, cabezaP);
                 break;
             case 4:
-                menuMantenimientoEnvios_op4(cabeza);
+                menuOperaciones_op4(cabezaS);
                 break;
             case 5: break;
             default:
@@ -60,44 +60,44 @@ void menuMantenimientoEnvios(struct Sucursal** cabeza){
 }
 
 // v - Agregar envio
-void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
+void menuOperaciones_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     system("cls");
     printf("AGREGAR ENVIO\n\n");
 
     char codeDelivery[25];
     printf("Codigo de envio: ");
     gets_truncate(codeDelivery, 25);
-    ValidationError_Paquete valPer = validatePaqueteCodeDelivery(*cabeza, codeDelivery);
-    while (valPer != PAQUETE_OK) {
+    ValidationError_Paquete valPaq = validatePaqueteCodeDelivery(*cabezaS, codeDelivery);
+    while (valPaq != PAQUETE_OK) {
         printf("ERROR: La identificacion dada ya existe en el sistema.\n\n");
         printf("Codigo de envio: ");
         gets_truncate(codeDelivery, 25);
-        valPer = validatePaqueteCodeDelivery(*cabeza, codeDelivery);
+        valPaq = validatePaqueteCodeDelivery(*cabezaS, codeDelivery);
     }
 
     char codeOriginSucursal[25], codeDestinationSucursal[25];
     while (true) {
         printf("Codigo sucursal origen: ");
         gets_truncate(codeOriginSucursal, 25);
-        valPer = validatePaqueteOrigin(*cabeza, codeOriginSucursal);
-        while (valPer == ERR_ORIGIN_INVALID) {
+        valPaq = validatePaqueteOrigin(*cabezaS, codeOriginSucursal);
+        while (valPaq == ERR_ORIGIN_INVALID) {
             printf("ERROR: La sucursal dada no existe en el sistema.\n\n");
             printf("Codigo sucursal origen: ");
             gets_truncate(codeOriginSucursal, 25);
-            valPer = validatePaqueteOrigin(*cabeza, codeOriginSucursal);
+            valPaq = validatePaqueteOrigin(*cabezaS, codeOriginSucursal);
         }
 
         printf("Codigo sucursal destino: ");
         gets_truncate(codeDestinationSucursal, 25);
-        valPer = validatePaqueteOriginDestination(*cabeza, codeDestinationSucursal, codeOriginSucursal);
-        while (valPer == ERR_DESTINATION_INVALID) {
+        valPaq = validatePaqueteOriginDestination(*cabezaS, codeDestinationSucursal, codeOriginSucursal);
+        while (valPaq == ERR_DESTINATION_INVALID) {
             printf("ERROR: La sucursal dada no existe en el sistema.\n\n");
             printf("Codigo sucursal destino: ");
             gets_truncate(codeOriginSucursal, 25);
-            valPer = validatePaqueteOriginDestination(*cabeza, codeDestinationSucursal, codeOriginSucursal);
+            valPaq = validatePaqueteOriginDestination(*cabezaS, codeDestinationSucursal, codeOriginSucursal);
         }
 
-        if (valPer == ERR_DESTINATION_EQUALS_ORIGIN) {
+        if (valPaq == ERR_DESTINATION_EQUALS_ORIGIN) {
             printf("ERROR: La sucursal de partida no puede ser la sucursal de destino.\n\n");
             continue;
         }
@@ -196,9 +196,9 @@ void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
 
         dateDelivery = newDate(d1, m1, y1, &valDat);
         dateReceived = newDate(d2, m2, y2, &valDat);
-        valPer = validatePaqueteDates(dateDelivery, dateReceived);
+        valPaq = validatePaqueteDates(dateDelivery, dateReceived);
 
-        if (valPer == ERR_DATE_MISMATCH) {
+        if (valPaq == ERR_DATE_MISMATCH) {
             printf("ERROR: La fecha de envio debe ser anterior a la fecha de entrega.\n\n");
             continue;
         }
@@ -231,8 +231,14 @@ void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
     unsigned long long debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
 
     char idSender[15];
-    printf("Cedula/Pasaporte emisor: ");
-    gets_truncate(idSender, 15);
+    while (true) {
+        printf("Cedula/Pasaporte emisor: ");
+        gets_truncate(idSender, 15);
+
+        valPaq = validatePaqueteSender(*cabezaP, idSender);
+        if (valPaq == PAQUETE_OK) break;
+        printf("ERROR: No existe persona registrada en el sistema con la identificacion dada.\n\n");
+    }
 
     char idReceiver[15];
     printf("Cedula/Pasaporte receptor: ");
@@ -240,7 +246,7 @@ void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
 
     printf("INFO: Procesando...");
 
-    agregarPaquete(*cabeza, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
+    agregarPaquete(*cabezaS, *cabezaP, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
 
     printf("\n\nHa sido agregado exitosamente el paquete %s al sistema!\n\n", codeDelivery);
     printf("INFO: Operacion realizada exitosamente.\n\n");
@@ -248,7 +254,7 @@ void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
 }
 
 // v - Consultar envio
-void menuMantenimientoEnvios_op2(struct Sucursal** cabeza) {
+void menuOperaciones_op2(struct Sucursal** cabeza) {
     system("cls");
     printf("CONSULTAR ENVIO\n\n");
 
@@ -273,7 +279,7 @@ struct __private__DatoEnvio {
     struct EnvioPaquete* envio;
     struct ReciboPaquete* recibo;
 };
-void __restricted__MenuMantenimientoModificarEnvioPrintf(void* envio) {
+void __restricted__MenuOperacionesModificarEnvioPrintf(void* envio) {
     printf("MODIFICAR ENVIO\n\n");
     struct __private__DatoEnvio** e2 = (struct __private__DatoEnvio**)envio;
     struct __private__DatoEnvio* e = *e2;
@@ -287,7 +293,7 @@ void __restricted__MenuMantenimientoModificarEnvioPrintf(void* envio) {
     printf("Introduzca en el teclado el numero correspondiente al dato que desea modificar y presione ENTER.\n");
     printf(" > ");
 }
-void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
+void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     system("cls");
     printf("MODIFICAR ENVIO\n\n");
 
@@ -298,7 +304,7 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
     struct __private__DatoEnvio* dato = (struct __private__DatoEnvio*) malloc(sizeof(struct __private__DatoEnvio));
     dato->envio = NULL;
     dato->recibo = NULL;
-    consultarEnvioRecibo(cabeza, code, &dato->envio, &dato->recibo);
+    consultarEnvioRecibo(cabezaS, code, &dato->envio, &dato->recibo);
     if (!dato->envio) {
         printf("ERROR: La identificacion dada no existe en el sistema.\n\n");
         system("pause");
@@ -306,24 +312,25 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
         int opc = 99;
         while (opc != 10) {
             system("cls");
-            scanf_integer(&opc, &__restricted__MenuMantenimientoModificarEnvioPrintf, &dato);
+            scanf_integer(&opc, &__restricted__MenuOperacionesModificarEnvioPrintf, &dato);
             ValidationError_Date valDat;
+            ValidationError_Paquete valPaq;
             switch (opc) {
                 case 1:
                     char codeDestinationSucursal[25];
-                    ValidationError_Paquete valPer;
+
                     while (true) {
                         printf("Codigo sucursal destino: ");
                         gets_truncate(codeDestinationSucursal, 25);
-                        valPer = validatePaqueteOriginDestination(*cabeza, codeDestinationSucursal, dato->recibo->codeOriginSucursal);
-                        while (valPer == ERR_DESTINATION_INVALID) {
+                        valPaq = validatePaqueteOriginDestination(*cabezaS, codeDestinationSucursal, dato->recibo->codeOriginSucursal);
+                        while (valPaq == ERR_DESTINATION_INVALID) {
                             printf("ERROR: La sucursal dada no existe en el sistema.\n\n");
                             printf("Codigo sucursal destino: ");
                             gets_truncate(codeDestinationSucursal, 25);
-                            valPer = validatePaqueteOriginDestination(*cabeza, codeDestinationSucursal, dato->recibo->codeOriginSucursal);
+                            valPaq = validatePaqueteOriginDestination(*cabezaS, codeDestinationSucursal, dato->recibo->codeOriginSucursal);
                         }
 
-                        if (valPer == ERR_DESTINATION_EQUALS_ORIGIN) {
+                        if (valPaq == ERR_DESTINATION_EQUALS_ORIGIN) {
                             printf("ERROR: La sucursal de partida no puede ser la sucursal de destino.\n\n");
                             continue;
                         }
@@ -381,9 +388,9 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
                         }
 
                         dateDelivery = newDate(d1, m1, y1, &valDat);
-                        valPer = validatePaqueteDates(dateDelivery, dato->envio->dateReceived);
+                        valPaq = validatePaqueteDates(dateDelivery, dato->envio->dateReceived);
 
-                        if (valPer == ERR_DATE_MISMATCH) {
+                        if (valPaq == ERR_DATE_MISMATCH) {
                             printf("ERROR: La fecha de envio debe ser anterior a la fecha de entrega.\n\n");
                             continue;
                         }
@@ -441,9 +448,9 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
                         }
 
                         dateReceived = newDate(d1, m1, y1, &valDat);
-                        valPer = validatePaqueteDates(dato->envio->dateDelivery, dateReceived);
+                        valPaq = validatePaqueteDates(dato->envio->dateDelivery, dateReceived);
 
-                        if (valPer == ERR_DATE_MISMATCH) {
+                        if (valPaq == ERR_DATE_MISMATCH) {
                             printf("ERROR: La fecha de envio debe ser anterior a la fecha de entrega.\n\n");
                             continue;
                         }
@@ -487,8 +494,14 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
                     break;
                 case 8:
                     char idSender[15];
-                    printf("Cedula/Pasaporte emisor: ");
-                    gets_truncate(idSender, 15);
+                    while (true) {
+                        printf("Cedula/Pasaporte emisor: ");
+                        gets_truncate(idSender, 15);
+
+                        valPaq = validatePaqueteSender(*cabezaP, idSender);
+                        if (valPaq == PAQUETE_OK) break;
+                        printf("ERROR: No existe persona registrada en el sistema con la identificacion dada.\n\n");
+                    }
                     strcpy_s(dato->envio->idSender, 15, idSender);
                     break;
                 case 9:
@@ -508,7 +521,7 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
 }
 
 // v - Eliminar envio
-void menuMantenimientoEnvios_op4(struct Sucursal** cabeza) {
+void menuOperaciones_op4(struct Sucursal** cabeza) {
     system("cls");
     printf("ELIMINAR ENVIO\n\n");
 
