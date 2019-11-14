@@ -131,7 +131,7 @@ struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabeza, char fn
             }
             p = p->prox;
         }
-        return NULL;
+        return busqueda;
     }
 }
 

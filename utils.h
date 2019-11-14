@@ -138,26 +138,29 @@ struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* sucurs
     struct tm timeinfo;
     localtime_s(&timeinfo, &rawtime);
     ValidationError_Date ignored;
-    struct Date* start = newDate((unsigned short)timeinfo.tm_mday, (unsigned short)timeinfo.tm_mon+1, (short)timeinfo.tm_year+1900, &ignored); // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-    struct Date* end = (struct Date*) malloc(sizeof(struct Date));
+    struct Date *start = newDate(
+            (unsigned short) timeinfo.tm_mday,
+            (unsigned short) timeinfo.tm_mon + 1,
+            (short) timeinfo.tm_year + 1900, &ignored); // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+    struct Date *end = (struct Date *) malloc(sizeof(struct Date));
     end->day = 32;
     end->month = 13;
-    end->year = (short)timeinfo.tm_year+1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
+    end->year = (short) timeinfo.tm_year + 1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
     return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(sucursal, start, end);
 }
 //
 //struct BusquedaPersonas* buscarPersonasPorSucursalConMayorCantidadEnvios(struct Sucursal* sucursal, struct Persona** cabezaP) {
-//    time_t rawtime;
-//    time(&rawtime);
-//    struct tm timeinfo;
-//    localtime_s(&timeinfo, &rawtime);
-//    ValidationError_Date ignored;
-//    struct Date* start = newDate((unsigned short)timeinfo.tm_mday, (unsigned short)timeinfo.tm_mon+1, (short)timeinfo.tm_year+1900, &ignored); // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-//    struct Date* end = (struct Date*) malloc(sizeof(struct Date));
-//    end->day = 32;
-//    end->month = 13;
-//    end->year = (short)timeinfo.tm_year+1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-//    return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(sucursal, start, end);
+//    struct Sucursal* s = sucursal;
+//    struct BusquedaPersonas* cabezaB = NULL;
+//    struct EnvioPaquete* p = s->sentPackages;
+//    while (p) {
+//        if ((__private__compareDates(p->dateDelivery, start) >= 0) && (__private__compareDates(p->dateDelivery, end) <= 0)) {
+//            __private__agregarEnvio(&cabezaB, p, consultarRecibo(&s, p->codeDelivery), &__private__sortCodigoEnvio);
+//        }
+//        p = p->prox;
+//    }
+//
+//    return cabezaB;
 //}
 
 #endif //PROJECT1_UTILS_H
