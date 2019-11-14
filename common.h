@@ -40,4 +40,24 @@ void gets_truncate(char* s, rsize_t size) {
     s[strcspn(s, "\r\n")] = 0; // Drops newline
 }
 
+long long strtoll_compat(char const* string, char** endptr, int radix) {
+#if _MSC_VER >= 1800
+    return strtoll(string, endptr, radix);
+#else
+    #ifndef _MSC_VER
+        #ifdef __STDC_VERSION__
+            #if __STDC_VERSION__ >= 199901L
+                return strtoll(string, endptr, radix);
+            #else
+                return (long long) strtol(string, endptr, radix);
+            #endif
+        #else
+            return (long long) strtol(string, endptr, radix);
+        #endif
+    #else
+        return (long long) strtol(string, endptr, radix);
+    #endif
+#endif
+}
+
 #endif //PROJECT1_COMMON_H

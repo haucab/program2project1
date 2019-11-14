@@ -224,11 +224,11 @@ void menuMantenimientoEnvios_op1(struct Sucursal** cabeza) {
     char lbuffer[10];
     printf("Peso (gramos): ");
     gets_truncate(lbuffer, 10);
-    unsigned long long weightPackageGrams = (unsigned long long) strtoll(lbuffer, NULL, 10);
+    unsigned long long weightPackageGrams = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
 
     printf("Monto facturado: ");
     gets_truncate(lbuffer, 10);
-    unsigned long long debitedCost = (unsigned long long) strtoll(lbuffer, NULL, 10);
+    unsigned long long debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
 
     char idSender[15];
     printf("Cedula/Pasaporte emisor: ");
@@ -476,13 +476,13 @@ void menuMantenimientoEnvios_op3(struct Sucursal** cabeza) {
                     char lbuffer[10];
                     printf("Peso (gramos): ");
                     gets_truncate(lbuffer, 10);
-                    unsigned long long weightPackageGrams = (unsigned long long) strtoll(lbuffer, NULL, 10);
+                    unsigned long long weightPackageGrams = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
                     dato->envio->weightPackageGrams = weightPackageGrams;
                     break;
                 case 7:
                     printf("Monto facturado: ");
                     gets_truncate(lbuffer, 10);
-                    unsigned long long debitedCost = (unsigned long long) strtoll(lbuffer, NULL, 10);
+                    unsigned long long debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
                     dato->envio->debitedCost = debitedCost;
                     break;
                 case 8:
