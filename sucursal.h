@@ -12,6 +12,7 @@ struct Sucursal {
 	struct ReciboPaquete* receivedPackages;
 	struct EnvioPaquete*  sentPackages;
 };
+typedef void (*SucursalDeleteCallback)(struct Sucursal*, char[25]);
 
 /*private*/ struct Sucursal* __private__newSucursal(
         char code[25], // Codigo especial de sucursal
@@ -67,6 +68,17 @@ ValidationError_Sucursal agregarSucursal(
     return SUCURSAL_OK;
 }
 
+void printSucursal(struct Sucursal* s) {
+    printf("    Codigo sucursal: %s\n", s->code);
+    printf("[1] Nombre: %s\n", s->name);
+    printf("[2] Direccion: %s\n", s->streetaddress);
+    printf("[3] Correo electronico: %s\n", s->email);
+    printf("[4] Ciudad: %s\n", s->city);
+    printf("[5] Estado: %s\n", s->state);
+    printf("[6] Pais: %s\n", s->country);
+    printf("[7] Telefono: %s\n", s->phoneNumber);
+}
+
 struct Sucursal* consultarSucursal(struct Sucursal** cabeza, char code[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return NULL;
@@ -79,11 +91,12 @@ struct Sucursal* consultarSucursal(struct Sucursal** cabeza, char code[25]) {
     }
 }
 
-void eliminarSucursal(struct Sucursal** cabeza,  char code[25]) {
+void eliminarSucursal(struct Sucursal** cabeza,  char code[25], SucursalDeleteCallback callback, char possiblecode[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return;
     else while (s) {
         if (stringIgualAString(s->code, code)) {
+            callback(s, possiblecode);
             if (s->prev) s->prev->prox = s->prox;
             if (s->prox) s->prox->prev = s->prev;
             free(s);
