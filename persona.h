@@ -80,13 +80,25 @@ struct Persona* consultarPersonaID(struct Persona** cabeza, char id[15]) {
     }
 }
 
+void printPersona(struct Persona* p) {
+    printf("    Cedula/Pasaporte: %s\n", p->id);
+    printf("[1] Nombre: %s\n", p->fnames);
+    printf("[2] Apellido: %s\n", p->lnames);
+    printf("[3] Direccion: %s\n", p->streetaddress);
+    printf("[4] Correo electronico: %s\n", p->email);
+    printf("[5] Ciudad: %s\n", p->city);
+    printf("[6] Estado: %s\n", p->state);
+    printf("[7] Pais: %s\n", p->country);
+    printf("[8] Telefono: %s\n", p->phoneNumber);
+}
+
 /*private*/ bool __private__nameMatch(struct Persona* s, char fnames[50], char lnames[50]) {
-    if (fnames) {
+    if (!stringIsEmptyOrNull_s(fnames, 50)) {
         if (stringContieneAString(s->lnames, fnames)) {
-            if (!lnames || stringContieneAString(s->lnames, lnames)) return true;
+            if (stringIsEmptyOrNull_s(lnames, 50) || stringContieneAString(s->lnames, lnames)) return true;
         }
     } else {
-        if (lnames && stringContieneAString(s->lnames, lnames)) return true;
+        if (!stringIsEmptyOrNull_s(lnames, 50) && stringContieneAString(s->lnames, lnames)) return true;
     }
     return false;
 }

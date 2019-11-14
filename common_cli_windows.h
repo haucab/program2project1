@@ -11,7 +11,7 @@
 #define __private__c0 '0'
 #define __private__c9 '9'
 
-typedef void (*PrintfCallback)(void);
+typedef void (*PrintfCallback)(void*);
 
 int getcharnobuf(void) {
     return _getch();
@@ -23,13 +23,15 @@ void __private__printZeroes(int z) {
     }
 }
 
-void scanf_integer(int* result, PrintfCallback callback) {
+void scanf_integer(int* result, PrintfCallback callback, void* arg) {
     int resultTemp = 0;
     int zeroCounter = 0;
 
-    for (int currchar = getcharnobuf(); currchar != KEY_ENTER; currchar = getcharnobuf()) {
+    callback(arg);
+    for (int currchar = getcharnobuf(); currchar != KEY_ENTER || (resultTemp == 0 && zeroCounter == 0); currchar = getcharnobuf()) {
+        if (currchar == KEY_ENTER) continue;
         system("cls");
-        callback();
+        callback(arg);
         if (currchar != KEY_BACKSPACE && (currchar < __private__c0 || currchar > __private__c9)) {
             __private__printZeroes(zeroCounter);
             if (resultTemp != 0) printf("%i ", resultTemp);
