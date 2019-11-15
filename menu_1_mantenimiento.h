@@ -71,26 +71,26 @@ void menuMantenimientoPersonas_op2(struct Persona** cabeza);
 void menuMantenimientoPersonas_op3(struct Persona** cabeza);
 void menuMantenimientoPersonas_op4(struct Persona** cabezaP, struct Sucursal** cabezaS);
 void menuMantenimientoPersonas_op5(struct Persona** cabeza);
-void menuMantenimientoPersonas(struct Persona** cabeza) {
+void menuMantenimientoPersonas(struct Persona** cabezaP, struct Sucursal** cabezaS) {
     int opc = 99;
     while (opc != 6) {
         system("cls");
         scanf_integer(&opc, &__restricted__MenuPersonasPrintf, NULL);
         switch (opc) {
             case 1:
-                menuMantenimientoPersonas_op1(cabeza);
+                menuMantenimientoPersonas_op1(cabezaP);
                 break;
             case 2:
-                menuMantenimientoPersonas_op2(cabeza);
+                menuMantenimientoPersonas_op2(cabezaP);
                 break;
             case 3:
-                menuMantenimientoPersonas_op3(cabeza);
+                menuMantenimientoPersonas_op3(cabezaP);
                 break;
             case 4:
-                menuMantenimientoPersonas_op4(cabeza);
+                menuMantenimientoPersonas_op4(cabezaP, cabezaS);
                 break;
             case 5:
-                menuMantenimientoPersonas_op5(cabeza);
+                menuMantenimientoPersonas_op5(cabezaP);
                 break;
             case 6: break;
             default:
@@ -139,7 +139,7 @@ void menuMantenimiento(struct Persona** cabezaP, struct Sucursal** cabezaS){
         scanf_integer(&opc, &__restricted__MenuMantenimientoPrintf, NULL);
         switch (opc) {
             case 1:
-                menuMantenimientoPersonas(cabezaP);
+                menuMantenimientoPersonas(cabezaP, cabezaS);
                 break;
             case 2:
                 menuMantenimientoSucursales(cabezaS);
@@ -614,7 +614,7 @@ void menuMantenimientoSucursales_op3(struct Sucursal** cabeza) {
 
 // v - Eliminar sucursal
 void __restricted__MenuMantenimientoEliminarSucursalPrintf(void* sucursal) {
-    printf("MODIFICAR SUCURSAL\n\n");
+    printf("ELIMINAR SUCURSAL\n\n");
     struct Sucursal** s2 = (struct Sucursal**)sucursal;
     struct Sucursal* s = *s2;
     printf("\n");

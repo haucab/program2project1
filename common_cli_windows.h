@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include "conio.h"
-#include <Windows.h>
 
 #define KEY_BACKSPACE 8
 #define KEY_ENTER 13
@@ -65,15 +64,6 @@ void scanf_integer(int* result, PrintfCallback callback, void* arg) {
         }
     }
     *result = resultTemp;
-}
-
-void gotoxy(int x, int y){
-    HANDLE hcon;
-    hcon = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD dwPos;
-    dwPos.X = x;
-    dwPos.Y = y;
-    SetConsoleCursorPosition(hcon,dwPos);
 }
 
 #endif //PROJECT1_COMMON_CLI_WINDOWS_H

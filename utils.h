@@ -332,7 +332,7 @@ void __private__sortSucursalesExtra(struct BusquedaSucursales** cabeza) {
         ap1 = ap1->prox;
     }
 }
-struct BusquedaSucursales* buscarSucusalConMayorCantidadEnviosEntreFechas(struct Sucursal** cabezaS, struct Date* start, struct Date* end) {
+struct BusquedaSucursales* buscarSucursalConMayorCantidadEnviosEntreFechas(struct Sucursal** cabezaS, struct Date* start, struct Date* end) {
     struct Sucursal* s = *cabezaS;
     struct BusquedaSucursales* cabezaB = NULL;
     while (s) {
@@ -350,7 +350,7 @@ struct BusquedaSucursales* buscarSucusalConMayorCantidadEnviosEntreFechas(struct
     __private__sortSucursalesExtra(&cabezaB);
     return cabezaB;
 }
-struct BusquedaSucursales* buscarSucusalConMayorCantidadRecibosEntreFechas(struct Sucursal** cabezaS, struct Date* start, struct Date* end) {
+struct BusquedaSucursales* buscarSucursalConMayorCantidadRecibosEntreFechas(struct Sucursal** cabezaS, struct Date* start, struct Date* end) {
     struct Sucursal* s = *cabezaS;
     struct BusquedaSucursales* cabezaB = NULL;
     while (s) {
@@ -368,6 +368,30 @@ struct BusquedaSucursales* buscarSucusalConMayorCantidadRecibosEntreFechas(struc
         s = s->prox;
     }
     __private__sortSucursalesExtra(&cabezaB);
+    return cabezaB;
+}
+
+
+struct BusquedaPersonasExtra* buscarPersonasNoRegistradas(struct Sucursal** cabezaS, struct Persona** cabezaP) {
+    struct Sucursal* s = *cabezaS;
+    struct BusquedaPersonasExtra* cabezaB = NULL;
+    while (s) {
+        struct EnvioPaquete* p = s->sentPackages;
+        while (p) {
+            bool isInPersonas = false;
+            struct Persona* auxpersona = *cabezaP;
+            while (auxpersona && !isInPersonas) {
+                if (stringIgualAString(p->idReceiver, auxpersona->id)) isInPersonas = true;
+                else auxpersona = auxpersona->prox;
+            }
+
+            if (!auxpersona) __private__agregarPersonaExtra(p->idReceiver, cabezaP, &cabezaB);
+            p = p->prox;
+        }
+
+        s = s->prox;
+    }
+    __private__sortPersonasExtra(&cabezaB);
     return cabezaB;
 }
 
