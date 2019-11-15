@@ -518,6 +518,8 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
             }
         }
     }
+
+    free(dato);
 }
 
 // v - Eliminar envio
