@@ -40,6 +40,11 @@ void gets_truncate(char* s, rsize_t size) {
     s[strcspn(s, "\r\n")] = 0; // Drops newline
 }
 
+void fgets_truncate(char* s, int size, FILE* stream) {
+    fgets(s, size, stream);
+    s[strcspn(s, "\r\n")] = 0; // Drops newline
+}
+
 long long strtoll_compat(char const* string, char** endptr, int radix) {
 #if _MSC_VER >= 1800
     return strtoll(string, endptr, radix);

@@ -665,7 +665,7 @@ void __restricted__moveToOtherSucursal(struct Sucursal* sucursal, char newcode[2
     }
 }
 void __restricted__saveToHistoricFile(struct Sucursal* sucursal, char ignored[25]) {
-    struct EnvioPaquete* enviosHistoricCabeza = fget_envios("envios_historicos.dat");
+    struct EnvioPaquete* enviosHistoricCabeza = fget_envios_legacy("envios_historicos.dat");
     struct EnvioPaquete* envioAux;
     while (sucursal->sentPackages) {
         envioAux = sucursal->sentPackages;
@@ -675,7 +675,7 @@ void __restricted__saveToHistoricFile(struct Sucursal* sucursal, char ignored[25
         if (enviosHistoricCabeza) enviosHistoricCabeza->prev = envioAux;
         enviosHistoricCabeza = envioAux;
     }
-    fputs_envios(enviosHistoricCabeza, "envios_historicos.dat");
+    fputs_envios_legacy(enviosHistoricCabeza, "envios_historicos.dat");
     while (enviosHistoricCabeza) {
         envioAux = enviosHistoricCabeza;
         enviosHistoricCabeza = enviosHistoricCabeza->prox;
