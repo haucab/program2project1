@@ -216,7 +216,8 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             while (valDat == ERR_MONTH_INVALID) {
                                 printf("   ERROR: El mes dado no es valido.\n");
                                 printf(" - Mes: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                month = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDateMonth(month);
                             }
 
@@ -227,7 +228,8 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             while (valDat == ERR_DAY_INVALID) {
                                 printf("   ERROR: El dia dado no es valido.\n");
                                 printf(" - Dia: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                day = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDate(day, month, year);
                             }
 
@@ -258,7 +260,8 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             while (valDat == ERR_MONTH_INVALID) {
                                 printf("   ERROR: El mes dado no es valido.\n");
                                 printf(" - Mes: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                month = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDateMonth(month);
                             }
 
@@ -269,7 +272,8 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             while (valDat == ERR_DAY_INVALID) {
                                 printf("   ERROR: El dia dado no es valido.\n");
                                 printf(" - Dia: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                day = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDate(day, month, year);
                             }
 
