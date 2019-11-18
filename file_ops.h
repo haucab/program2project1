@@ -27,27 +27,27 @@ void fget_envios(const char* c1, struct Sucursal* cabezaS, struct Persona* cabez
             fgets_truncate(codeOriginSucursal, 25, f1);
 
             // ---
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             short year = (short) strtol(buffer, NULL, 10);
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             unsigned short month = (unsigned short) strtol(buffer, NULL, 10);
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             unsigned short day = (unsigned short) strtol(buffer, NULL, 10);
             struct Date* dateDelivery = (struct Date*) malloc(sizeof(struct Date));
             dateDelivery->day = day;
             dateDelivery->month = month;
             dateDelivery->year = year;
 
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             year = (short) strtol(buffer, NULL, 10);
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             month = (unsigned short) strtol(buffer, NULL, 10);
-            fgets_truncate(buffer, 5, f1);
+            fgets_truncate(buffer, 6, f1);
             day = (unsigned short) strtol(buffer, NULL, 10);
             struct Date* dateReceived = (struct Date*) malloc(sizeof(struct Date));
-            dateDelivery->day = day;
-            dateDelivery->month = month;
-            dateDelivery->year = year;
+            dateReceived->day = day;
+            dateReceived->month = month;
+            dateReceived->year = year;
 
             // ---
             fgets_truncate(buffer, 5, f1);
@@ -340,9 +340,9 @@ struct EnvioPaquete* fget_envios_legacy(const char* c1) {
             fgets_truncate(buffer, 6, f1);
             day = (unsigned short) strtol(buffer, NULL, 10);
             struct Date* dateReceived = (struct Date*) malloc(sizeof(struct Date));
-            dateDelivery->day = day;
-            dateDelivery->month = month;
-            dateDelivery->year = year;
+            dateReceived->day = day;
+            dateReceived->month = month;
+            dateReceived->year = year;
 
             // ---
             fgets_truncate(buffer, 5, f1);
