@@ -32,7 +32,7 @@ void dateToString(struct Date* d, char s[15]) {
 
     strcat_s(s, 15, "/");
 
-    sprintf_s(buf, 3, "%d", d->year);
+    sprintf_s(buf, 5, "%d", d->year);
     strcat_s(s, 15, buf);
 }
 
