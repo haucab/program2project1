@@ -35,7 +35,7 @@ struct ReciboPaquete {
     strcpy_s(envio->description, 50, description);
     strcpy_s(envio->codeDelivery, 25, codeDelivery);
     envio->weightPackageGrams = weightPackageGrams;
-    strcpy_s(envio->debitedCost, 25, debitedCost);
+    strcpy_s(envio->debitedCost, 20, debitedCost);
     strcpy_s(envio->idSender, 25, idSender);
     strcpy_s(envio->idReceiver, 25, idReceiver);
     envio->prev = NULL;
@@ -135,8 +135,7 @@ void printEnvio(struct EnvioPaquete* envio, struct ReciboPaquete* recibo) {
     char buf2[10];
     sprintf_s(buf2, 10, "%lld", envio->weightPackageGrams);
     printf("[6] Peso (g): %s\n", buf2);
-    sprintf_s(buf2, 10, "%lld", envio->debitedCost);
-    printf("[7] Monto facturado: %s\n", buf2);
+    printf("[7] Monto facturado: %s\n", envio->debitedCost);
     printf("[8] Cedula/Pasaporte emisor: %s\n", envio->idSender);
     printf("[9] Cedula/Pasaporte receptor: %s\n", envio->idReceiver);
 }

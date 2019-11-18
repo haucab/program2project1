@@ -229,9 +229,9 @@ void menuOperaciones_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     gets_truncate(lbuffer, 10);
     unsigned long long weightPackageGrams = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
 
+    char debitedCost[20];
     printf("Monto facturado: ");
-    gets_truncate(lbuffer, 10);
-    unsigned long long debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
+    gets_truncate(debitedCost, 20);
 
     char idSender[15];
     while (true) {
@@ -319,7 +319,7 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
             ValidationError_Date valDat;
             ValidationError_Paquete valPaq;
 			int currchar;
-			unsigned long long weightPackageGrams, debitedCost;
+			unsigned long long weightPackageGrams;
             switch (opc) {
                 case 1:
                     char codeDestinationSucursal[25];
@@ -492,10 +492,10 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                     dato->envio->weightPackageGrams = weightPackageGrams;
                     break;
                 case 7:
+                    char debitedCost[20];
                     printf("Monto facturado: ");
-                    gets_truncate(lbuffer, 10);
-                    debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
-                    dato->envio->debitedCost = debitedCost;
+                    gets_truncate(debitedCost, 20);
+                    strcpy_s(dato->envio->debitedCost, 20, debitedCost);
                     break;
                 case 8:
                     char idSender[15];
