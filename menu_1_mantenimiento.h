@@ -649,7 +649,7 @@ void __restricted__MenuMantenimientoEliminarSucursalPrintf(void* sucursal) {
 }
 void __restricted__moveToOtherSucursal(struct Sucursal* sucursal, char newcode[25]) {
     char oldcode[25];
-    strcpy_s(oldcode, 50, sucursal->code);
+    strcpy_s(oldcode, 25, sucursal->code);
 
     struct Sucursal* cabeza = sucursal;
     while (cabeza && cabeza->prev) {
@@ -668,10 +668,10 @@ void __restricted__moveToOtherSucursal(struct Sucursal* sucursal, char newcode[2
         struct EnvioPaquete* envios = s->sentPackages;
         struct ReciboPaquete* recibos = s->receivedPackages;
         for (; envios; envios = envios->prox) {
-            if (stringIgualAString(envios->codeDestinationSucursal, oldcode)) strcpy_s(envios->codeDestinationSucursal, 50, newcode);
+            if (stringIgualAString(envios->codeDestinationSucursal, oldcode)) strcpy_s(envios->codeDestinationSucursal, 25, newcode);
         }
         for (; recibos; recibos = recibos->prox) {
-            if (stringIgualAString(recibos->codeOriginSucursal, oldcode)) strcpy_s(recibos->codeOriginSucursal, 50, newcode);
+            if (stringIgualAString(recibos->codeOriginSucursal, oldcode)) strcpy_s(recibos->codeOriginSucursal, 25, newcode);
         }
     }
 }
@@ -724,7 +724,7 @@ void menuMantenimientoSucursales_op4(struct Sucursal** cabeza) {
                     case 1:
                         printf("Codigo sucursal a ser asignada las transacciones: ");
                         gets_truncate(possiblecode, 25);
-                        while (consultarSucursal(cabeza, possiblecode) == NULL || !stringIgualAString(possiblecode, code)) {
+                        while (consultarSucursal(cabeza, possiblecode) == NULL || stringIgualAString(possiblecode, code)) {
                             printf("ERROR: La identificacion dada no existe en el sistema.\n\n");
                             printf("Codigo sucursal a ser asignada las transacciones: ");
                             gets_truncate(possiblecode, 25);

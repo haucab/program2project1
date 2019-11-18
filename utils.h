@@ -17,6 +17,7 @@ struct BusquedaPersonasExtra {
     struct Persona* ptr;
     char id[15];
     long enviosRecibos;
+	char extra[25];
     struct BusquedaPersonasExtra* prev, *prox;
 };
 
@@ -49,7 +50,7 @@ typedef int (*SortEnviosCallback)(struct EnvioPaquete*, struct EnvioPaquete*, st
     } else return -1;
 }
 
-/*private*/ void __private__agregarEnvio(struct BusquedaEnvios** cabeza, struct EnvioPaquete* valorE, struct ReciboPaquete* valorR, SortEnviosCallback callback) {
+/*private*/ void __private__agregarEnvio(struct BusquedaEnvios** cabeza, struct EnvioPaquete* valorE, struct ReciboPaquete* valorR, SortEnviosCallback callback, bool dropEquals) {
     struct BusquedaEnvios* b = *cabeza;
     if (!b) {
         *cabeza = __private__newBusquedaEnvios(valorE, valorR);
@@ -67,13 +68,14 @@ typedef int (*SortEnviosCallback)(struct EnvioPaquete*, struct EnvioPaquete*, st
         *cabeza = aux;
     } else {
         while (true) {
-            if (callback(valorE, b->valorE, valorR, b->valorR) < 0) {
+			int comp = callback(valorE, b->valorE, valorR, b->valorR);
+            if (comp < 0) {
                 aux->prox = b;
                 aux->prev = b->prev;
                 b->prev->prox = aux;
                 b->prev = aux;
                 return;
-            }
+            } else if (comp == 0 && dropEquals) return;
 			if (!b->prox) break;
             b = b->prox;
         }
@@ -93,7 +95,7 @@ struct BusquedaEnvios* buscarEnviosPorCedulaEmisorOrdenadosPorFecha(struct Sucur
         struct EnvioPaquete* p = s->sentPackages;
         while (p) {
             if (stringIgualAString(p->idSender, id)) {
-                __private__agregarEnvio(&cabeza, p, consultarRecibo(&cabezaS, p->codeDelivery), &__private__sortSentDate);
+                __private__agregarEnvio(&cabeza, p, consultarRecibo(&cabezaS, p->codeDelivery), &__private__sortSentDate, false);
             }
             p = p->prox;
         }
@@ -139,13 +141,13 @@ int __private__sortCodigoEnvio(struct EnvioPaquete* e1, struct EnvioPaquete* e2,
         else return 0;
     }
 }
-struct BusquedaEnvios* buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(struct Sucursal* sucursal, struct Date* start, struct Date* end) {
+struct BusquedaEnvios* buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(struct Sucursal* cabezaS, struct Sucursal* sucursal, struct Date* start, struct Date* end) {
     struct Sucursal* s = sucursal;
     struct BusquedaEnvios* cabeza = NULL;
     struct EnvioPaquete* p = s->sentPackages;
     while (p) {
         if ((__private__compareDates(p->dateDelivery, start) >= 0) && (__private__compareDates(p->dateDelivery, end) <= 0)) {
-            __private__agregarEnvio(&cabeza, p, consultarRecibo(&s, p->codeDelivery), &__private__sortCodigoEnvio);
+            __private__agregarEnvio(&cabeza, p, consultarRecibo(&cabezaS, p->codeDelivery), &__private__sortCodigoEnvio, true);
         }
         p = p->prox;
     }
@@ -160,7 +162,7 @@ struct BusquedaEnvios* buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDe
     while (pr) {
         p = consultarEnvio(cabezaS, s->sentPackages->codeDelivery);
         if ((__private__compareDates(p->dateReceived, start) >= 0) && (__private__compareDates(p->dateReceived, end) <= 0)) {
-            __private__agregarEnvio(&cabeza, p, consultarRecibo(&s, p->codeDelivery), &__private__sortCodigoEnvio);
+            __private__agregarEnvio(&cabeza, p, pr, &__private__sortCodigoEnvio, true);
         }
         pr = pr->prox;
     }
@@ -168,7 +170,7 @@ struct BusquedaEnvios* buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDe
     return cabeza;
 }
 
-struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* sucursal) {
+struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* cabezaS, struct Sucursal* sucursal) {
     time_t rawtime;
     time(&rawtime);
     struct tm timeinfo;
@@ -182,15 +184,17 @@ struct BusquedaEnvios* buscarEnviosPorSucursalNoCerrados(struct Sucursal* sucurs
     end->day = 32;
     end->month = 13;
     end->year = (short) timeinfo.tm_year + 1901; // NOLINT(bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions)
-    return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(sucursal, start, end);
+    return buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(cabezaS, sucursal, start, end);
 }
 
-void __private__agregarPersonaExtra(char id[15], struct Persona** cabezaP, struct BusquedaPersonasExtra** cabezaB) {
+void __private__agregarPersonaExtra(char id[15], struct Persona** cabezaP, struct BusquedaPersonasExtra** cabezaB, bool equalityDependsOnSucursales, char scode[25]) {
     struct BusquedaPersonasExtra* busqueda = *cabezaB;
     if (!busqueda) {
         struct BusquedaPersonasExtra* newItem = (struct BusquedaPersonasExtra*) malloc(sizeof(struct BusquedaPersonasExtra));
         *cabezaB = newItem;
         strcpy_s(newItem->id, 15, id);
+		if (scode) strcpy_s(newItem->extra, 25, scode);
+		else newItem->extra[0] = '\0';
         struct Persona* possibleParent = consultarPersonaID(cabezaP, id);
         if (possibleParent) newItem->ptr = possibleParent;
         newItem->enviosRecibos = 1;
@@ -200,7 +204,7 @@ void __private__agregarPersonaExtra(char id[15], struct Persona** cabezaP, struc
         return;
     } else {
         while (busqueda) {
-            if (stringIgualAString(id, busqueda->id)) {
+			if (stringIgualAString(id, busqueda->id) && (!equalityDependsOnSucursales || stringIgualAString(scode, busqueda->extra))) {
                 busqueda->enviosRecibos++;
                 return;
             }
@@ -211,8 +215,11 @@ void __private__agregarPersonaExtra(char id[15], struct Persona** cabezaP, struc
 
         struct BusquedaPersonasExtra* newItem = (struct BusquedaPersonasExtra*) malloc(sizeof(struct BusquedaPersonasExtra));
         strcpy_s(newItem->id, 15, id);
+		if (scode) strcpy_s(newItem->extra, 25, scode);
+		else newItem->extra[0] = '\0';
         struct Persona* possibleParent = consultarPersonaID(cabezaP, id);
         if (possibleParent) newItem->ptr = possibleParent;
+		else newItem->ptr = NULL;
         newItem->enviosRecibos = 1;
         newItem->prev = NULL;
         newItem->prox = busqueda;
@@ -250,18 +257,18 @@ struct BusquedaPersonasExtra* buscarPersonasPorSucursalConMayorCantidadEnvios(st
     struct BusquedaPersonasExtra* cabezaB = NULL;
     struct EnvioPaquete* p = s->sentPackages;
     while (p) {
-        __private__agregarPersonaExtra(p->idSender, cabezaP, &cabezaB);
+        __private__agregarPersonaExtra(p->idSender, cabezaP, &cabezaB, false, NULL);
         p = p->prox;
     }
     __private__sortPersonasExtra(&cabezaB);
     return cabezaB;
 }
-struct BusquedaPersonasExtra* buscarPersonasPorSucursalConMayorCantidadRecepciones(struct Sucursal* sucursal, struct Persona** cabezaP) {
+struct BusquedaPersonasExtra* buscarPersonasPorSucursalConMayorCantidadRecepciones(struct Sucursal* cabezaS, struct Sucursal* sucursal, struct Persona** cabezaP) {
     struct Sucursal* s = sucursal;
     struct BusquedaPersonasExtra* cabezaB = NULL;
     struct ReciboPaquete* p = s->receivedPackages;
     while (p) {
-        __private__agregarPersonaExtra(consultarEnvio(&sucursal, p->codeDelivery)->idReceiver, cabezaP, &cabezaB);
+        __private__agregarPersonaExtra(consultarEnvio(&cabezaS, p->codeDelivery)->idReceiver, cabezaP, &cabezaB, false, NULL);
         p = p->prox;
     }
     __private__sortPersonasExtra(&cabezaB);
@@ -273,7 +280,7 @@ struct BusquedaPersonasExtra* buscarPersonasConMayorCantidadEnvios(struct Sucurs
     while (s) {
         struct EnvioPaquete* p = s->sentPackages;
         while (p) {
-            __private__agregarPersonaExtra(p->idSender, cabezaP, &cabezaB);
+            __private__agregarPersonaExtra(p->idSender, cabezaP, &cabezaB, true, s->code);
             p = p->prox;
         }
 
@@ -287,6 +294,7 @@ void __private__agregarSucursalesExtra(char code[25], struct Sucursal** cabezaS,
     struct BusquedaSucursales* busqueda = *cabezaB;
     if (!busqueda) {
         struct BusquedaSucursales* newItem = (struct BusquedaSucursales*) malloc(sizeof(struct BusquedaPersonasExtra));
+		strcpy_s(newItem->code, 25, code);
         *cabezaB = newItem;
         newItem->ptr = consultarSucursal(cabezaS, code);
         newItem->enviosRecibos = 0;
@@ -306,6 +314,7 @@ void __private__agregarSucursalesExtra(char code[25], struct Sucursal** cabezaS,
         busqueda = *cabezaB;
 
         struct BusquedaSucursales* newItem = (struct BusquedaSucursales*) malloc(sizeof(struct BusquedaPersonasExtra));
+		strcpy_s(newItem->code, 25, code);
         newItem->ptr = consultarSucursal(cabezaS, code);
         newItem->enviosRecibos = 0;
         newItem->prev = NULL;
@@ -365,7 +374,7 @@ struct BusquedaSucursales* buscarSucursalConMayorCantidadRecibosEntreFechas(stru
         struct ReciboPaquete* pr = s->receivedPackages;
         struct EnvioPaquete* p;
         while (pr) {
-            p = consultarEnvio(cabezaS, s->sentPackages->codeDelivery);
+            p = consultarEnvio(cabezaS, pr->codeDelivery);
             if ((__private__compareDates(p->dateReceived, start) >= 0) && (__private__compareDates(p->dateReceived, end) <= 0))
                 __private__agregarSucursalesExtra(s->code, cabezaS, &cabezaB);
 
@@ -392,7 +401,7 @@ struct BusquedaPersonasExtra* buscarPersonasNoRegistradas(struct Sucursal** cabe
                 else auxpersona = auxpersona->prox;
             }
 
-            if (!auxpersona) __private__agregarPersonaExtra(p->idReceiver, cabezaP, &cabezaB);
+            if (!auxpersona) __private__agregarPersonaExtra(p->idReceiver, cabezaP, &cabezaB, false, NULL);
             p = p->prox;
         }
 

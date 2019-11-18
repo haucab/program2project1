@@ -94,16 +94,24 @@ struct Sucursal* consultarSucursal(struct Sucursal** cabeza, char code[25]) {
 void eliminarSucursal(struct Sucursal** cabeza,  char code[25], SucursalDeleteCallback callback, char possiblecode[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return;
-    else while (s) {
-        if (stringIgualAString(s->code, code)) {
-            callback(s, possiblecode);
-            if (s->prev) s->prev->prox = s->prox;
-            if (s->prox) s->prox->prev = s->prev;
-            free(s);
-            return;
-        }
-        s = s->prox;
-    }
+	else {
+		if (stringIgualAString((*cabeza)->code, code)) {
+			callback(*cabeza, possiblecode);
+			*cabeza = (*cabeza)->prox;
+		    free(s);
+	        return;
+		}
+		while (s) {
+			if (stringIgualAString(s->code, code)) {
+				callback(s, possiblecode);
+	            if (s->prev) s->prev->prox = s->prox;
+		        if (s->prox) s->prox->prev = s->prev;
+			    free(s);
+	            return;
+		    }
+			s = s->prox;
+	    }
+	}
 }
 
 #endif // PROJECT1_SUCURSAL_H

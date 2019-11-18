@@ -203,7 +203,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         short y1;
                         unsigned short m1, d1;
                         while (true) {
-                            printf("Fecha de envio: ");
+                            printf("Fecha inicio: ");
 
                             printf(" - Año: ");
                             gets_truncate(buffer, 6);
@@ -247,7 +247,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         short y2;
                         unsigned short m2, d2;
                         while (true) {
-                            printf("Fecha de recepcion: ");
+                            printf("Fecha de final: ");
 
                             printf(" - Año: ");
                             gets_truncate(buffer, 6);
@@ -291,6 +291,8 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         dateStart = newDate(d1, m1, y1, &valDat);
                         dateEnd = newDate(d2, m2, y2, &valDat);
 
+						buffer[0] = '\0';
+
                         if (validatePaqueteDates(dateStart, dateEnd) == ERR_DATE_MISMATCH) {
                             printf("ERROR: La fecha de inicial debe ser anterior a la fecha final.\n\n");
                             continue;
@@ -299,32 +301,34 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         break;
                     }
 
-                    result1 = buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(s, dateStart, dateEnd);
+                    result1 = buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(*cabezaS, s, dateStart, dateEnd);
+                    printf("--------------------------ENVIOS--------------------------\n");
                     while (result1) {
-                        printf("----------------------------------------------------------\n");
                         printEnvio(result1->valorE, result1->valorR);
+						printf("\n");
 
                         struct BusquedaEnvios* resultgarbage = result1;
                         result1 = result1->prox;
                         if (result1) result1->prev = NULL;
                         free(resultgarbage);
-                        printf("----------------------------------------------------------\n\n");
                     }
+                    printf("----------------------------------------------------------\n\n");
                     result2 = buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(cabezaS, s, dateStart, dateEnd);
+                    printf("--------------------------RECIBOS-------------------------\n");
                     while (result2) {
-                        printf("----------------------------------------------------------\n");
                         printEnvio(result2->valorE, result2->valorR);
+						printf("\n");
 
                         struct BusquedaEnvios* resultgarbage = result2;
                         result2 = result2->prox;
                         if (result2) result2->prev = NULL;
                         free(resultgarbage);
-                        printf("----------------------------------------------------------\n\n");
                     }
+					printf("----------------------------------------------------------\n\n");
                     system("pause");
                     break;
                 case 2:
-                    result3 = buscarEnviosPorSucursalNoCerrados(s);
+                    result3 = buscarEnviosPorSucursalNoCerrados(*cabezaS, s);
                     while (result3) {
                         printf("----------------------------------------------------------\n");
                         printEnvio(result3->valorE, result3->valorR);
@@ -341,11 +345,13 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                     printf("Por mayor cantidad de envios o de recepciones (E/r) > ");
                     currchar = getcharnobuf();
                     if (currchar == 'r' || currchar == 'R') {
-                        struct BusquedaPersonasExtra* busc = buscarPersonasPorSucursalConMayorCantidadRecepciones(s, cabezaP);
+                        struct BusquedaPersonasExtra* busc = buscarPersonasPorSucursalConMayorCantidadRecepciones(*cabezaS, s, cabezaP);
+						printf("\nFormato: NOMBRES, CEDULA, DIRECCION\n");
                         printf("----------------------------------------------------------\n");
                         while (busc) {
-                            if (busc->ptr) printf("%s %s, %s, %s", busc->ptr->fnames, busc->ptr->lnames, busc->ptr->id, busc->ptr->streetaddress);
-                            else printf("[Persona no registrada] %s", busc->id);
+                            if (busc->ptr)
+								printf("%s %s, %s, %s\n", busc->ptr->fnames, busc->ptr->lnames, busc->ptr->id, busc->ptr->streetaddress);
+                            else printf("[Persona no registrada] %s\n", busc->id);
 
                             struct BusquedaPersonasExtra* resultgarbage = busc;
                             busc = busc->prox;
@@ -355,9 +361,10 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         printf("----------------------------------------------------------\n\n");
                     } else {
                         struct BusquedaPersonasExtra* busc = buscarPersonasPorSucursalConMayorCantidadEnvios(s, cabezaP);
-                        printf("----------------------------------------------------------\n");
+						printf("\nFormato: NOMBRES, CEDULA, DIRECCION\n");
+                        printf("\n----------------------------------------------------------\n");
                         while (busc) {
-                            printf("%s %s, %s, %s", busc->ptr->fnames, busc->ptr->lnames, busc->ptr->id, busc->ptr->streetaddress);
+                            printf("%s %s, %s, %s\n", busc->ptr->fnames, busc->ptr->lnames, busc->ptr->id, busc->ptr->streetaddress);
 
                             struct BusquedaPersonasExtra* resultgarbage = busc;
                             busc = busc->prox;
@@ -380,16 +387,17 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
 void menuConsultas_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     struct BusquedaPersonasExtra* busc = buscarPersonasConMayorCantidadEnvios(cabezaS, cabezaP);
+	printf("\nFormato: CEDULA, NOMBRES, CEDULA, SUCURSAL\n");
+	printf("----------------------------------------------------------\n");
     while (busc) {
-        printf("----------------------------------------------------------\n");
-        printPersona(busc->ptr);
+        printf("%s, %s %s, %s\n", busc->ptr->id, busc->ptr->fnames, busc->ptr->lnames, busc->extra);
 
         struct BusquedaPersonasExtra* resultgarbage = busc;
         busc = busc->prox;
         if (busc) busc->prev = NULL;
         free(resultgarbage);
-        printf("----------------------------------------------------------\n\n");
     }
+	printf("----------------------------------------------------------\n\n");
     system("pause");
 }
 
@@ -402,31 +410,33 @@ void menuConsultas_op4(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         short y1;
         unsigned short m1, d1;
         while (true) {
-            printf("Fecha de envio: ");
+            printf("Fecha inicial: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				month = (short) strtol(buffer, NULL, 10);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				day = (short) strtol(buffer, NULL, 10);
                 valDat = validateDate(day, month, year);
             }
 
@@ -444,31 +454,33 @@ void menuConsultas_op4(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         short y2;
         unsigned short m2, d2;
         while (true) {
-            printf("Fecha de recepcion: ");
+            printf("Fecha final: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				month = (short) strtol(buffer, NULL, 10);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				day = (short) strtol(buffer, NULL, 10);
                 valDat = validateDate(day, month, year);
             }
 
@@ -486,19 +498,18 @@ void menuConsultas_op4(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         dateStart = newDate(d1, m1, y1, &valDat);
         dateEnd = newDate(d2, m2, y2, &valDat);
 
+		buffer[0] = '\0';
+
         if (validatePaqueteDates(dateStart, dateEnd) == ERR_DATE_MISMATCH) {
             printf("ERROR: La fecha de inicial debe ser anterior a la fecha final.\n\n");
-            continue;
-        }
-
-        break;
+        } else break;
     }
 
     struct BusquedaSucursales* busc = buscarSucursalConMayorCantidadEnviosEntreFechas(cabezaS, dateStart, dateEnd);
     while (busc) {
         printf("----------------------------------------------------------\n");
         printSucursal(busc->ptr);
-        printf("Envios: %ld", busc->enviosRecibos);
+        printf("Envios: %ld\n", busc->enviosRecibos);
 
         struct BusquedaSucursales* resultgarbage = busc;
         busc = busc->prox;
@@ -518,31 +529,33 @@ void menuConsultas_op5(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         short y1;
         unsigned short m1, d1;
         while (true) {
-            printf("Fecha de envio: ");
+            printf("Fecha inicial: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				month = (short) strtol(buffer, NULL, 10);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				day = (short) strtol(buffer, NULL, 10);
                 valDat = validateDate(day, month, year);
             }
 
@@ -560,31 +573,33 @@ void menuConsultas_op5(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         short y2;
         unsigned short m2, d2;
         while (true) {
-            printf("Fecha de recepcion: ");
+            printf("Fecha final: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				month = (short) strtol(buffer, NULL, 10);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+				day = (short) strtol(buffer, NULL, 10);
                 valDat = validateDate(day, month, year);
             }
 
@@ -602,19 +617,18 @@ void menuConsultas_op5(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         dateStart = newDate(d1, m1, y1, &valDat);
         dateEnd = newDate(d2, m2, y2, &valDat);
 
+		buffer[0] = '\0';
+
         if (validatePaqueteDates(dateStart, dateEnd) == ERR_DATE_MISMATCH) {
             printf("ERROR: La fecha de inicial debe ser anterior a la fecha final.\n\n");
-            continue;
-        }
-
-        break;
+        } else break;
     }
 
     struct BusquedaSucursales* busc = buscarSucursalConMayorCantidadRecibosEntreFechas(cabezaS, dateStart, dateEnd);
     while (busc) {
         printf("----------------------------------------------------------\n");
         printSucursal(busc->ptr);
-        printf("Recibos: %ld", busc->enviosRecibos);
+        printf("Recibos: %ld\n", busc->enviosRecibos);
 
         struct BusquedaSucursales* resultgarbage = busc;
         busc = busc->prox;
@@ -627,17 +641,17 @@ void menuConsultas_op5(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
 void menuConsultas_op6(struct Sucursal** cabezaS, struct Persona** cabezaP) {
     struct BusquedaPersonasExtra* busc = buscarPersonasNoRegistradas(cabezaS, cabezaP);
+    printf("\n----------------------------------------------------------\n");
     while (busc) {
-        printf("----------------------------------------------------------\n");
-        printf("ID: %s", busc->id);
-        printf("Recibos: %ld", busc->enviosRecibos);
+        printf("ID: %s\n", busc->id);
 
         struct BusquedaPersonasExtra* resultgarbage = busc;
         busc = busc->prox;
         if (busc) busc->prev = NULL;
         free(resultgarbage);
-        printf("----------------------------------------------------------\n\n");
     }
+	printf("----------------------------------------------------------\n\n");
+	system("pause");
 }
 
 #endif //PROJECT1_MENU_3_CONSULTAS_H
