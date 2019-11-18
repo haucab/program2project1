@@ -9,7 +9,8 @@ struct EnvioPaquete {
 	struct Date* dateDelivery, * dateReceived;
 	bool insured;
 	char description[50], codeDelivery[25];
-	unsigned long long weightPackageGrams, debitedCost;
+	unsigned long long weightPackageGrams;
+    char debitedCost[20];
 	char idSender[15], idReceiver[15]; // ID puede ser Cedula o Pasaporte
 	struct EnvioPaquete* prev, * prox;
 };
@@ -24,7 +25,7 @@ struct ReciboPaquete {
         char codeDestinationSucursal[25],
         struct Date* dateDelivery, struct Date* dateReceived,
         bool insured, char description[50], char codeDelivery[25],
-        unsigned long long weightPackageGrams, unsigned long long debitedCost,
+        unsigned long long weightPackageGrams, char debitedCost[20],
         char idSender[15], char idReceiver[15]) {
     struct EnvioPaquete* envio = (struct EnvioPaquete*) malloc(sizeof(struct EnvioPaquete));
     strcpy_s(envio->codeDestinationSucursal, 25, codeDestinationSucursal);
@@ -34,7 +35,7 @@ struct ReciboPaquete {
     strcpy_s(envio->description, 50, description);
     strcpy_s(envio->codeDelivery, 25, codeDelivery);
     envio->weightPackageGrams = weightPackageGrams;
-    envio->debitedCost = debitedCost;
+    strcpy_s(envio->debitedCost, 25, debitedCost);
     strcpy_s(envio->idSender, 25, idSender);
     strcpy_s(envio->idReceiver, 25, idReceiver);
     envio->prev = NULL;
@@ -71,7 +72,7 @@ ValidationError_Paquete agregarPaquete(struct Sucursal* cabezaS, struct Persona*
                                        char codeDestinationSucursal[25], char codeOriginSucursal[25],
                                        struct Date* dateDelivery, struct Date* dateReceived,
                                        bool insured, char description[50], char codeDelivery[25],
-                                       unsigned long long weightPackageGrams, unsigned long long debitedCost,
+                                       unsigned long long weightPackageGrams, char debitedCost[20],
                                        char idSender[15], char idReceiver[15]) {
 	ValidationError_Paquete result = validatePaquete(cabezaS, cabezaP, codeDestinationSucursal, codeOriginSucursal, dateDelivery, dateReceived, insured, description, codeDelivery, weightPackageGrams, debitedCost, idSender, idReceiver);
     if (result != PAQUETE_OK) return result;
@@ -132,9 +133,9 @@ void printEnvio(struct EnvioPaquete* envio, struct ReciboPaquete* recibo) {
     printf("[5] Descripcion: %s\n", envio->description);
 
     char buf2[10];
-    sprintf_s(buf2, 10, "%d", envio->weightPackageGrams);
+    sprintf_s(buf2, 10, "%lld", envio->weightPackageGrams);
     printf("[6] Peso (g): %s\n", buf2);
-    sprintf_s(buf2, 10, "%d", envio->debitedCost);
+    sprintf_s(buf2, 10, "%lld", envio->debitedCost);
     printf("[7] Monto facturado: %s\n", buf2);
     printf("[8] Cedula/Pasaporte emisor: %s\n", envio->idSender);
     printf("[9] Cedula/Pasaporte receptor: %s\n", envio->idReceiver);

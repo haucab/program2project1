@@ -66,7 +66,7 @@ ValidationError_Paquete validatePaquete(struct Sucursal* cabezaS, struct Persona
                                         char codeDestinationSucursal[25], char codeOriginSucursal[25],
                                         struct Date* dateDelivery, struct Date* dateReceived,
                                         bool insured, char description[50], char codeDelivery[25],
-                                        unsigned long long weightPackageGrams, unsigned long long debitedCost,
+                                        unsigned long long weightPackageGrams, char debitedCost[20],
                                         char idSender[15], char idReceiver[15]) {
     ValidationError_Paquete validationTotal = validatePaqueteOriginDestination(cabezaS, codeDestinationSucursal, codeOriginSucursal);
     if (validationTotal != PAQUETE_OK) return validationTotal;

@@ -103,11 +103,12 @@ void menuConsultas_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         while (opc != 3) {
             system("cls");
             scanf_integer(&opc, &__restricted__MenuConsultas_3_1_Printf, NULL);
+			struct BusquedaEnvios* result1;
             switch (opc) {
                 case 1:
                     printf("Formato: CODIGO-SUCURSAL, CODIGO-ENVIO, FECHA-ENVIO, FECHA-RECIBO, DESCRIPCION\n");
                     printf("----------------------------------------------------------\n");
-                    struct BusquedaEnvios* result1 = buscarEnviosPorCedulaEmisorOrdenadosPorFecha(*cabezaS, id);
+                    result1 = buscarEnviosPorCedulaEmisorOrdenadosPorFecha(*cabezaS, id);
                     while (result1) {
                         char dat1[15];
                         dateToString(result1->valorE->dateDelivery, dat1);
@@ -184,6 +185,10 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                 case 1:
                     struct Date* dateStart, * dateEnd;
                     ValidationError_Date valDat;
+					struct BusquedaEnvios* result1;
+					struct BusquedaEnvios* result2;
+					struct BusquedaEnvios* result3;
+					int currchar;
                     while (true) {
                         char buffer[5];
 
@@ -282,7 +287,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         break;
                     }
 
-                    struct BusquedaEnvios* result1 = buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(s, dateStart, dateEnd);
+                    result1 = buscarEnviosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(s, dateStart, dateEnd);
                     while (result1) {
                         printf("----------------------------------------------------------\n");
                         printEnvio(result1->valorE, result1->valorR);
@@ -293,7 +298,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                         free(resultgarbage);
                         printf("----------------------------------------------------------\n\n");
                     }
-                    struct BusquedaEnvios* result2 = buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(cabezaS, s, dateStart, dateEnd);
+                    result2 = buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDeEnvio(cabezaS, s, dateStart, dateEnd);
                     while (result2) {
                         printf("----------------------------------------------------------\n");
                         printEnvio(result2->valorE, result2->valorR);
@@ -307,7 +312,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                     system("pause");
                     break;
                 case 2:
-                    struct BusquedaEnvios* result3 = buscarEnviosPorSucursalNoCerrados(s);
+                    result3 = buscarEnviosPorSucursalNoCerrados(s);
                     while (result3) {
                         printf("----------------------------------------------------------\n");
                         printEnvio(result3->valorE, result3->valorR);
@@ -322,7 +327,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                     break;
                 case 3:
                     printf("Por mayor cantidad de envios o de recepciones (E/r) > ");
-                    int currchar = getcharnobuf();
+                    currchar = getcharnobuf();
                     if (currchar == 'r' || currchar == 'R') {
                         struct BusquedaPersonasExtra* busc = buscarPersonasPorSucursalConMayorCantidadRecepciones(s, cabezaP);
                         printf("----------------------------------------------------------\n");

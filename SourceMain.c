@@ -28,19 +28,23 @@ void __restricted__MenuPpalPrintf(void* ignored) {
 }
 
 int main(void) {
+	struct Sucursal* cabezaSPPal = fgets_sucursales("sucursales.dat");
+	struct Persona* cabezaPPPal = fgets_personas("personas.dat");
+	fget_envios("envios.dat", cabezaSPPal, cabezaPPPal);
+
     int opc = 99;
     while (opc != 4) {
         system("cls");
-        scanf_integer(&opc, &__restricted__MenuPersonasPrintf, NULL);
+        scanf_integer(&opc, &__restricted__MenuPpalPrintf, NULL);
         switch (opc) {
             case 1:
-                menuMantenimiento();
+				menuMantenimiento(&cabezaPPPal, &cabezaSPPal);
                 break;
             case 2:
-                menuOperaciones();
+                menuOperaciones(&cabezaSPPal, &cabezaPPPal);
                 break;
             case 3:
-                menuConsultas();
+                menuConsultas(&cabezaSPPal, &cabezaPPPal);
                 break;
             case 4: break;
             default:
