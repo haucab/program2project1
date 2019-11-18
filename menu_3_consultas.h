@@ -103,7 +103,7 @@ void menuConsultas_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         while (opc != 3) {
             system("cls");
             scanf_integer(&opc, &__restricted__MenuConsultas_3_1_Printf, NULL);
-			struct BusquedaEnvios* result1;
+            struct BusquedaEnvios* result1;
             switch (opc) {
                 case 1:
                     printf("Formato: CODIGO-SUCURSAL, CODIGO-ENVIO, FECHA-ENVIO, FECHA-RECIBO, DESCRIPCION\n");
@@ -118,7 +118,7 @@ void menuConsultas_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                         struct BusquedaEnvios* resultgarbage = result1;
                         result1 = result1->prox;
-                        result1->prev = NULL;
+                        if (result1) result1->prev = NULL;
                         free(resultgarbage);
                     }
                     printf("----------------------------------------------------------\n");
@@ -185,10 +185,10 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                 case 1:
                     struct Date* dateStart, * dateEnd;
                     ValidationError_Date valDat;
-					struct BusquedaEnvios* result1;
-					struct BusquedaEnvios* result2;
-					struct BusquedaEnvios* result3;
-					int currchar;
+                    struct BusquedaEnvios* result1;
+                    struct BusquedaEnvios* result2;
+                    struct BusquedaEnvios* result3;
+                    int currchar;
                     while (true) {
                         char buffer[5];
 
@@ -294,7 +294,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                         struct BusquedaEnvios* resultgarbage = result1;
                         result1 = result1->prox;
-                        result1->prev = NULL;
+                        if (result1) result1->prev = NULL;
                         free(resultgarbage);
                         printf("----------------------------------------------------------\n\n");
                     }
@@ -305,7 +305,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                         struct BusquedaEnvios* resultgarbage = result2;
                         result2 = result2->prox;
-                        result2->prev = NULL;
+                        if (result2) result2->prev = NULL;
                         free(resultgarbage);
                         printf("----------------------------------------------------------\n\n");
                     }
@@ -319,7 +319,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                         struct BusquedaEnvios* resultgarbage = result3;
                         result3 = result3->prox;
-                        result3->prev = NULL;
+                        if (result3) result3->prev = NULL;
                         free(resultgarbage);
                         printf("----------------------------------------------------------\n\n");
                     }
@@ -337,7 +337,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                             struct BusquedaPersonasExtra* resultgarbage = busc;
                             busc = busc->prox;
-                            busc->prev = NULL;
+                            if (busc) busc->prev = NULL;
                             free(resultgarbage);
                         }
                         printf("----------------------------------------------------------\n\n");
@@ -349,7 +349,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                             struct BusquedaPersonasExtra* resultgarbage = busc;
                             busc = busc->prox;
-                            busc->prev = NULL;
+                            if (busc) busc->prev = NULL;
                             free(resultgarbage);
                         }
                         printf("----------------------------------------------------------\n\n");
@@ -374,7 +374,7 @@ void menuConsultas_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
         struct BusquedaPersonasExtra* resultgarbage = busc;
         busc = busc->prox;
-        busc->prev = NULL;
+        if (busc) busc->prev = NULL;
         free(resultgarbage);
         printf("----------------------------------------------------------\n\n");
     }
@@ -490,7 +490,7 @@ void menuConsultas_op4(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
         struct BusquedaSucursales* resultgarbage = busc;
         busc = busc->prox;
-        busc->prev = NULL;
+        if (busc) busc->prev = NULL;
         free(resultgarbage);
         printf("----------------------------------------------------------\n\n");
     }
@@ -606,7 +606,7 @@ void menuConsultas_op5(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
         struct BusquedaSucursales* resultgarbage = busc;
         busc = busc->prox;
-        busc->prev = NULL;
+        if (busc) busc->prev = NULL;
         free(resultgarbage);
         printf("----------------------------------------------------------\n\n");
     }
@@ -622,7 +622,7 @@ void menuConsultas_op6(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
         struct BusquedaPersonasExtra* resultgarbage = busc;
         busc = busc->prox;
-        busc->prev = NULL;
+        if (busc) busc->prev = NULL;
         free(resultgarbage);
         printf("----------------------------------------------------------\n\n");
     }
