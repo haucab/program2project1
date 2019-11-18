@@ -79,15 +79,18 @@ void menuMantenimientoPersonas(struct Persona** cabezaP, struct Sucursal** cabez
         switch (opc) {
             case 1:
                 menuMantenimientoPersonas_op1(cabezaP);
+				fputs_personas(*cabezaP, "personas.dat");
                 break;
             case 2:
                 menuMantenimientoPersonas_op2(cabezaP);
                 break;
             case 3:
                 menuMantenimientoPersonas_op3(cabezaP);
+				fputs_personas(*cabezaP, "personas.dat");
                 break;
             case 4:
                 menuMantenimientoPersonas_op4(cabezaP, cabezaS);
+				fputs_personas(*cabezaP, "personas.dat");
                 break;
             case 5:
                 menuMantenimientoPersonas_op5(cabezaP);
@@ -113,15 +116,21 @@ void menuMantenimientoSucursales(struct Sucursal** cabeza){
         switch (opc) {
             case 1:
                 menuMantenimientoSucursales_op1(cabeza);
+				fputs_sucursales(*cabeza, "sucursales.dat");
+				fputs_envios(*cabeza, "envios.dat");
                 break;
             case 2:
                 menuMantenimientoSucursales_op2(cabeza);
                 break;
             case 3:
                 menuMantenimientoSucursales_op3(cabeza);
+				fputs_sucursales(*cabeza, "sucursales.dat");
+				fputs_envios(*cabeza, "envios.dat");
                 break;
             case 4:
                 menuMantenimientoSucursales_op4(cabeza);
+				fputs_sucursales(*cabeza, "sucursales.dat");
+				fputs_envios(*cabeza, "envios.dat");
                 break;
             case 5: break;
             default:
@@ -274,6 +283,7 @@ void menuMantenimientoPersonas_op3(struct Persona** cabeza) {
         while (opc != 9) {
             system("cls");
             scanf_integer(&opc, &__restricted__MenuMantenimientoModificarPersonaPrintf, &p);
+			ValidationError_Persona valPer;
             switch (opc) {
                 case 1:
                     // Change first name
@@ -301,7 +311,7 @@ void menuMantenimientoPersonas_op3(struct Persona** cabeza) {
                     char email[50];
                     printf("Correo electronico: ");
                     gets_truncate(email, 50);
-                    ValidationError_Persona valPer = validatePersonaEmail(email);
+                    valPer = validatePersonaEmail(email);
                     while (valPer != PERSONA_OK) {
                         printf("ERROR: El correo electronico que usted ha dado no es valido.\n\n");
                         printf("Correo electronico: ");
@@ -545,6 +555,7 @@ void menuMantenimientoSucursales_op3(struct Sucursal** cabeza) {
         while (opc != 8) {
             system("cls");
             scanf_integer(&opc, &__restricted__MenuMantenimientoModificarSucursalPrintf, &s);
+			ValidationError_Persona valPer;
             switch (opc) {
                 case 1:
                     // Change last name
@@ -565,7 +576,7 @@ void menuMantenimientoSucursales_op3(struct Sucursal** cabeza) {
                     char email[50];
                     printf("Correo electronico: ");
                     gets_truncate(email, 50);
-                    ValidationError_Persona valPer = validatePersonaEmail(email);
+                     valPer = validatePersonaEmail(email);
                     while (valPer != PERSONA_OK) {
                         printf("ERROR: El correo electronico que usted ha dado no es valido.\n\n");
                         printf("Correo electronico: ");
@@ -665,7 +676,7 @@ void __restricted__moveToOtherSucursal(struct Sucursal* sucursal, char newcode[2
     }
 }
 void __restricted__saveToHistoricFile(struct Sucursal* sucursal, char ignored[25]) {
-    struct EnvioPaquete* enviosHistoricCabeza = fget_envios("envios_historicos.dat");
+    struct EnvioPaquete* enviosHistoricCabeza = fget_envios_legacy("envios_historicos.dat");
     struct EnvioPaquete* envioAux;
     while (sucursal->sentPackages) {
         envioAux = sucursal->sentPackages;
@@ -675,7 +686,7 @@ void __restricted__saveToHistoricFile(struct Sucursal* sucursal, char ignored[25
         if (enviosHistoricCabeza) enviosHistoricCabeza->prev = envioAux;
         enviosHistoricCabeza = envioAux;
     }
-    fputs_envios(enviosHistoricCabeza, "envios_historicos.dat");
+    fputs_envios_legacy(enviosHistoricCabeza, "envios_historicos.dat");
     while (enviosHistoricCabeza) {
         envioAux = enviosHistoricCabeza;
         enviosHistoricCabeza = enviosHistoricCabeza->prox;

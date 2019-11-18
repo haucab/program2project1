@@ -79,14 +79,14 @@ typedef int (*SortEnviosCallback)(struct EnvioPaquete*, struct EnvioPaquete*, st
 int __private__sortSentDate(struct EnvioPaquete* e1, struct EnvioPaquete* e2, struct ReciboPaquete* ignored1, struct ReciboPaquete* ignored2) {
     return __private__compareDates(e1->dateDelivery, e2->dateDelivery);
 }
-struct BusquedaEnvios* buscarEnviosPorCedulaEmisorOrdenadosPorFecha(struct Sucursal* lista, char id[15]) {
-    struct Sucursal* s = lista;
+struct BusquedaEnvios* buscarEnviosPorCedulaEmisorOrdenadosPorFecha(struct Sucursal* cabezaS, char id[15]) {
+    struct Sucursal* s = cabezaS;
     struct BusquedaEnvios* cabeza = NULL;
     while (s) {
         struct EnvioPaquete* p = s->sentPackages;
         while (p) {
             if (stringIgualAString(p->idSender, id)) {
-                __private__agregarEnvio(&cabeza, p, consultarRecibo(&lista, p->codeDelivery), &__private__sortSentDate);
+                __private__agregarEnvio(&cabeza, p, consultarRecibo(&cabezaS, p->codeDelivery), &__private__sortSentDate);
             }
             p = p->prox;
         }
@@ -152,7 +152,7 @@ struct BusquedaEnvios* buscarRecibosPorSucursalEntreDosFechasOrdenadoPorCodigoDe
     struct EnvioPaquete* p;
     while (pr) {
         p = consultarEnvio(cabezaS, s->sentPackages->codeDelivery);
-        if ((__private__compareDates(p->dateDelivery, start) >= 0) && (__private__compareDates(p->dateDelivery, end) <= 0)) {
+        if ((__private__compareDates(p->dateReceived, start) >= 0) && (__private__compareDates(p->dateReceived, end) <= 0)) {
             __private__agregarEnvio(&cabeza, p, consultarRecibo(&s, p->codeDelivery), &__private__sortCodigoEnvio);
         }
         pr = pr->prox;

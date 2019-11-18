@@ -40,15 +40,18 @@ void menuOperaciones(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         switch (opc) {
             case 1:
                 menuOperaciones_op1(cabezaS, cabezaP);
+				fputs_envios(*cabezaS, "envios.dat");
                 break;
             case 2:
                 menuOperaciones_op2(cabezaS);
                 break;
             case 3:
                 menuOperaciones_op3(cabezaS, cabezaP);
+				fputs_envios(*cabezaS, "envios.dat");
                 break;
             case 4:
                 menuOperaciones_op4(cabezaS);
+				fputs_envios(*cabezaS, "envios.dat");
                 break;
             case 5: break;
             default:
@@ -315,6 +318,8 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
             scanf_integer(&opc, &__restricted__MenuOperacionesModificarEnvioPrintf, &dato);
             ValidationError_Date valDat;
             ValidationError_Paquete valPaq;
+			int currchar;
+			unsigned long long weightPackageGrams, debitedCost;
             switch (opc) {
                 case 1:
                     char codeDestinationSucursal[25];
@@ -463,7 +468,7 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                 case 4:
                     bool insured;
                     printf("Asegurado (Presione la tecla 's' para decir que si, cualquier otra tecla para decir que no) > ");
-                    int currchar = getcharnobuf();
+                    currchar = getcharnobuf();
                     if (currchar == 's' || currchar == 'S') {
                         printf("Si\n");
                         insured = true;
@@ -483,13 +488,13 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                     char lbuffer[10];
                     printf("Peso (gramos): ");
                     gets_truncate(lbuffer, 10);
-                    unsigned long long weightPackageGrams = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
+                    weightPackageGrams = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
                     dato->envio->weightPackageGrams = weightPackageGrams;
                     break;
                 case 7:
                     printf("Monto facturado: ");
                     gets_truncate(lbuffer, 10);
-                    unsigned long long debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
+                    debitedCost = (unsigned long long) strtoll_compat(lbuffer, NULL, 10);
                     dato->envio->debitedCost = debitedCost;
                     break;
                 case 8:
