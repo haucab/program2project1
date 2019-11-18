@@ -103,10 +103,11 @@ void menuConsultas_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
         while (opc != 3) {
             system("cls");
             scanf_integer(&opc, &__restricted__MenuConsultas_3_1_Printf, NULL);
-            struct BusquedaEnvios* result1;
+			printf("\n");
+			struct BusquedaEnvios* result1;
             switch (opc) {
                 case 1:
-                    printf("Formato: CODIGO-SUCURSAL, CODIGO-ENVIO, FECHA-ENVIO, FECHA-RECIBO, DESCRIPCION\n");
+                    printf("Formato: CODIGO-SUCURSAL-ORIGEN, CODIGO-ENVIO, FECHA-ENVIO, FECHA-RECIBO, DESCRIPCION\n");
                     printf("----------------------------------------------------------\n");
                     result1 = buscarEnviosPorCedulaEmisorOrdenadosPorFecha(*cabezaS, id);
                     while (result1) {
@@ -131,10 +132,17 @@ void menuConsultas_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
 
                     struct EnvioPaquete* temp1;
                     struct ReciboPaquete* temp2;
-                    consultarEnvioRecibo(cabezaS, code, &temp1, &temp2);
-                    printf("----------------------------------------------------------\n");
-                    printEnvio(temp1, temp2);
-                    printf("----------------------------------------------------------\n");
+                    temp1 = buscarEnviosPorCedulaEmisorCodigoDeTransaccion(*cabezaS, id, code);
+					if (!temp1) {
+						printf("----------------------------------------------------------\n");
+	                    printf("[No se encontro ningun envio con la cedula %s y el codigo %s]\n", id, code);
+						printf("----------------------------------------------------------\n");
+					} else {
+						temp2 = consultarRecibo(cabezaS, code);
+		                printf("----------------------------------------------------------\n");
+	                    printEnvio(temp1, temp2);
+						printf("----------------------------------------------------------\n");
+					}
                     system("pause");
                     break;
                 case 3: break;
@@ -185,10 +193,10 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                 case 1:
                     struct Date* dateStart, * dateEnd;
                     ValidationError_Date valDat;
-                    struct BusquedaEnvios* result1;
-                    struct BusquedaEnvios* result2;
-                    struct BusquedaEnvios* result3;
-                    int currchar;
+					struct BusquedaEnvios* result1;
+					struct BusquedaEnvios* result2;
+					struct BusquedaEnvios* result3;
+					int currchar;
                     while (true) {
                         char buffer[5];
 
@@ -198,11 +206,11 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             printf("Fecha de envio: ");
 
                             printf(" - Año: ");
-                            gets_truncate(buffer, 5);
+                            gets_truncate(buffer, 6);
                             short year = (short) strtol(buffer, NULL, 10);
 
                             printf(" - Mes: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short month = (short) strtol(buffer, NULL, 10);
                             valDat = validateDateMonth(month);
                             while (valDat == ERR_MONTH_INVALID) {
@@ -213,7 +221,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             }
 
                             printf(" - Dia: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short day = (short) strtol(buffer, NULL, 10);
                             valDat = validateDate(day, month, year);
                             while (valDat == ERR_DAY_INVALID) {
@@ -240,11 +248,11 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             printf("Fecha de recepcion: ");
 
                             printf(" - Año: ");
-                            gets_truncate(buffer, 5);
+                            gets_truncate(buffer, 6);
                             short year = (short) strtol(buffer, NULL, 10);
 
                             printf(" - Mes: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short month = (short) strtol(buffer, NULL, 10);
                             valDat = validateDateMonth(month);
                             while (valDat == ERR_MONTH_INVALID) {
@@ -255,7 +263,7 @@ void menuConsultas_op2(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             }
 
                             printf(" - Dia: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short day = (short) strtol(buffer, NULL, 10);
                             valDat = validateDate(day, month, year);
                             while (valDat == ERR_DAY_INVALID) {

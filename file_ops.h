@@ -21,10 +21,10 @@ void fget_envios(const char* c1, struct Sucursal* cabezaS, struct Persona* cabez
         fgets_truncate(buffer, 10, f1);
         long max = strtol(buffer, NULL, 10);
         for (long i = 0; i < max; i++) {
-            char codeDestinationSucursal[25];
-            fgets_truncate(codeDestinationSucursal, 25, f1);
             char codeOriginSucursal[25];
             fgets_truncate(codeOriginSucursal, 25, f1);
+            char codeDestinationSucursal[25];
+            fgets_truncate(codeDestinationSucursal, 25, f1);
 
             // ---
             fgets_truncate(buffer, 6, f1);
@@ -103,8 +103,8 @@ void fputs_envios(struct Sucursal* cabeza, const char* c1) {
 		while (s) {
             e = s->sentPackages;
 			while (e) {
-				fputs_newline(e->codeDestinationSucursal, f1);
 				fputs_newline(s->code, f1);
+				fputs_newline(e->codeDestinationSucursal, f1);
 
 		        // ---
 				itoa(e->dateDelivery->year, buffer, 10);

@@ -119,28 +119,30 @@ void menuOperaciones_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
             printf("Fecha de envio: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+                month = (short) strtol(buffer, NULL, 10);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
+                day = (short) strtol(buffer, NULL, 10);
                 valDat = validateDate(day, month, year);
             }
 
@@ -161,28 +163,28 @@ void menuOperaciones_op1(struct Sucursal** cabezaS, struct Persona** cabezaP) {
             printf("Fecha de recepcion: ");
 
             printf(" - Año: ");
-            gets_truncate(buffer, 5);
+            gets_truncate(buffer, 6);
             short year = (short) strtol(buffer, NULL, 10);
 
             printf(" - Mes: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short month = (short) strtol(buffer, NULL, 10);
             valDat = validateDateMonth(month);
             while (valDat == ERR_MONTH_INVALID) {
                 printf("   ERROR: El mes dado no es valido.\n");
                 printf(" - Mes: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
                 valDat = validateDateMonth(month);
             }
 
             printf(" - Dia: ");
-            gets_truncate(buffer, 3);
+            gets_truncate(buffer, 4);
             short day = (short) strtol(buffer, NULL, 10);
             valDat = validateDate(day, month, year);
             while (valDat == ERR_DAY_INVALID) {
                 printf("   ERROR: El dia dado no es valido.\n");
                 printf(" - Dia: ");
-                gets_truncate(buffer, 3);
+                gets_truncate(buffer, 4);
                 valDat = validateDate(day, month, year);
             }
 
@@ -289,7 +291,7 @@ void __restricted__MenuOperacionesModificarEnvioPrintf(void* envio) {
     printf("\n");
     printf("----------------------------------------------------------\n");
     printEnvio(e->envio, e->recibo);
-    printf("[10] Guardar y regresar al menu anterior.");
+    printf("[10] Guardar y regresar al menu anterior.\n");
     printf("----------------------------------------------------------\n");
     printf("\n");
     printf("\n");
@@ -356,28 +358,30 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             printf("Fecha de envio: ");
 
                             printf(" - Año: ");
-                            gets_truncate(buffer, 5);
+                            gets_truncate(buffer, 6);
                             short year = (short) strtol(buffer, NULL, 10);
 
                             printf(" - Mes: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short month = (short) strtol(buffer, NULL, 10);
                             valDat = validateDateMonth(month);
                             while (valDat == ERR_MONTH_INVALID) {
                                 printf("   ERROR: El mes dado no es valido.\n");
                                 printf(" - Mes: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                month = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDateMonth(month);
                             }
 
                             printf(" - Dia: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short day = (short) strtol(buffer, NULL, 10);
                             valDat = validateDate(day, month, year);
                             while (valDat == ERR_DAY_INVALID) {
                                 printf("   ERROR: El dia dado no es valido.\n");
                                 printf(" - Dia: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                day = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDate(day, month, year);
                             }
 
@@ -416,28 +420,30 @@ void menuOperaciones_op3(struct Sucursal** cabezaS, struct Persona** cabezaP) {
                             printf("Fecha de recibo: ");
 
                             printf(" - Año: ");
-                            gets_truncate(buffer, 5);
+                            gets_truncate(buffer, 6);
                             short year = (short) strtol(buffer, NULL, 10);
 
                             printf(" - Mes: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short month = (short) strtol(buffer, NULL, 10);
                             valDat = validateDateMonth(month);
                             while (valDat == ERR_MONTH_INVALID) {
                                 printf("   ERROR: El mes dado no es valido.\n");
                                 printf(" - Mes: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                month = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDateMonth(month);
                             }
 
                             printf(" - Dia: ");
-                            gets_truncate(buffer, 3);
+                            gets_truncate(buffer, 4);
                             short day = (short) strtol(buffer, NULL, 10);
                             valDat = validateDate(day, month, year);
                             while (valDat == ERR_DAY_INVALID) {
                                 printf("   ERROR: El dia dado no es valido.\n");
                                 printf(" - Dia: ");
-                                gets_truncate(buffer, 3);
+                                gets_truncate(buffer, 4);
+                                day = (short) strtol(buffer, NULL, 10);
                                 valDat = validateDate(day, month, year);
                             }
 

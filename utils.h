@@ -53,16 +53,20 @@ typedef int (*SortEnviosCallback)(struct EnvioPaquete*, struct EnvioPaquete*, st
     struct BusquedaEnvios* b = *cabeza;
     if (!b) {
         *cabeza = __private__newBusquedaEnvios(valorE, valorR);
+		(*cabeza)->prev = NULL;
+		(*cabeza)->prox = NULL;
         return;
     }
 
     struct BusquedaEnvios* aux = __private__newBusquedaEnvios(valorE, valorR);
+	aux->prev = NULL;
+	aux->prox = NULL;
     if (callback(valorE, b->valorE, valorR, b->valorR) < 0) {
         aux->prox = b;
         b->prev = aux;
         *cabeza = aux;
     } else {
-        while (b) {
+        while (true) {
             if (callback(valorE, b->valorE, valorR, b->valorR) < 0) {
                 aux->prox = b;
                 aux->prev = b->prev;
@@ -70,9 +74,12 @@ typedef int (*SortEnviosCallback)(struct EnvioPaquete*, struct EnvioPaquete*, st
                 b->prev = aux;
                 return;
             }
-
+			if (!b->prox) break;
             b = b->prox;
         }
+
+		b->prox = aux;
+		aux->prev = b;
     }
 }
 
