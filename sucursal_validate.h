@@ -4,13 +4,15 @@
 #include "common.h"
 
 typedef enum {
-    SUCURSAL_OK, ERR_DUPLICATE_SUCURSAL_ID, ERR_INVALID_SUCURSAL_EMAIL
+    SUCURSAL_OK, ERR_DUPLICATE_SUCURSAL_ID, ERR_DUPLICATE_SUCURSAL_NAME, ERR_INVALID_SUCURSAL_EMAIL
 } ValidationError_Sucursal;
 
 struct Sucursal;
 
 ValidationError_Sucursal validateSucursalId(struct Sucursal** cabeza,
-                                            char code[15] /* ID puede ser Cedula o Pasaporte */); // Implemented in persona.h
+                                            char code[15] /* ID puede ser Cedula o Pasaporte */); // Implemented in persona.
+ValidationError_Sucursal validateSucursalName(struct Sucursal** cabeza,
+                                              char name[50]); // Implemented in persona.h
 
 ValidationError_Sucursal validateSucursalEmail(char email[50]) {
     if (!stringContieneAString(email, "@")) return ERR_INVALID_SUCURSAL_EMAIL;
@@ -19,8 +21,12 @@ ValidationError_Sucursal validateSucursalEmail(char email[50]) {
 
 ValidationError_Sucursal validateSucursal(struct Sucursal** cabeza,
                                           char code[15], // ID puede ser Cedula o Pasaporte
+                                          char name[50],
                                           char email[50]) {
-    ValidationError_Sucursal validationTotal = validateSucursalId(cabeza, code);
+    ValidationError_Sucursal validationTotal = validateSucursalName(cabeza, name);
+    if (validationTotal != SUCURSAL_OK) return validationTotal;
+
+    validationTotal = validateSucursalId(cabeza, code);
     if (validationTotal != SUCURSAL_OK) return validationTotal;
 
     return validateSucursalEmail(email);
