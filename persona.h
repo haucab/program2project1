@@ -47,41 +47,31 @@ ValidationError_Persona validatePersonaId(struct Persona** cabeza,
 }
 
 ValidationError_Persona agregarPersona(
-        struct Persona** cabezaPtr,
+        struct Persona** cabeza,
         char id[15], // ID puede ser Cedula o Pasaporte
         char fnames[50], char lnames[50], char streetaddress[150], char email[50],
         char city[30], char state[30], char country[30], char phoneNumber[20]) {
-    ValidationError_Persona result = validatePersona(cabezaPtr, id, email);
+    ValidationError_Persona result = validatePersona(cabeza, id, email);
     if (result != PERSONA_OK) return result;
 
     struct Persona* dato = __private__newPersona(id, fnames, lnames, streetaddress, email, city, state, country, phoneNumber);
 
-    struct Persona* cabeza = *cabezaPtr, * p = cabeza;
-    if (!cabeza) {
-        *cabezaPtr = dato;
-        dato->prev = dato;
-        dato->prox = dato;
+    struct Persona* p = *cabeza;
+    if (!p) {
+        *cabeza = dato;
     } else {
-        while (p->prox != cabeza) {
-            if (strcmp(p->id, id) > 0) break;
-            p = p->prox;
-        }
+        while (p->prox) p = p->prox;
 
-        struct Persona* aux = p->prev;
-        p->prev = dato;
-        dato->prev = aux;
-        dato->prox = p;
-        aux->prox = dato;
+        p->prox = dato;
+        dato->prev = p;
     }
     return PERSONA_OK;
 }
 
 bool __private__person_exists(struct Persona* cabeza, char *idSender) {
-    if (!cabeza) return false;
-    if (stringIgualAString(cabeza->id, idSender)) return true;
+    struct Persona* p = cabeza;
 
-    struct Persona* p = cabeza->prox;
-    while (p != cabeza) {
+    while (p) {
         if (stringIgualAString(p->id, idSender))
             return true;
         p = p->prox;
@@ -89,17 +79,16 @@ bool __private__person_exists(struct Persona* cabeza, char *idSender) {
 
     return false;
 }
-struct Persona* consultarPersonaID(struct Persona** cabezaPtr, char id[15]) {
-    struct Persona* cabeza  = *cabezaPtr;
-    if (!cabeza) return NULL;
-    if (stringIgualAString(cabeza->id, id)) return cabeza;
-
-    struct Persona* p = cabeza->prox;
-    while (p != cabeza) {
-        if (stringIgualAString(p->id, id)) return p;
-        p = p->prox;
+struct Persona* consultarPersonaID(struct Persona** cabeza, char id[15]) {
+    struct Persona* p = *cabeza;
+    if (!p) return NULL;
+    else {
+        while (p) {
+            if (stringIgualAString(p->id, id)) return p;
+            p = p->prox;
+        }
+        return NULL;
     }
-    return NULL;
 }
 
 void printPersona(struct Persona* p) {
@@ -125,49 +114,34 @@ void printPersona(struct Persona* p) {
     return false;
 }
 
-struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabezaPtr, char fnames[50], char lnames[50]) {
+struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabeza, char fnames[50], char lnames[50]) {
     if (!fnames && !lnames) return NULL;
 
-    struct Persona* cabeza  = *cabezaPtr;
-    if (!cabeza) return NULL;
-
-    struct BusquedaPersonas* busqueda = NULL;
-    if (__private__nameMatch(cabeza, fnames, lnames)) {
-        struct BusquedaPersonas* aux = busqueda;
-        busqueda = (struct BusquedaPersonas*) malloc(sizeof(struct BusquedaPersonas));
-        busqueda->valor = cabeza;
-        busqueda->prox = aux;
-        busqueda->prev = NULL;
-        busqueda->prox->prev = busqueda;
-    }
-
-    struct Persona* p = cabeza->prox;
-    while (p != cabeza) {
-        if (__private__nameMatch(p, fnames, lnames)) {
-            struct BusquedaPersonas* aux = busqueda;
-            busqueda = (struct BusquedaPersonas*) malloc(sizeof(struct BusquedaPersonas));
-            busqueda->valor = p;
-            busqueda->prox = aux;
-            busqueda->prev = NULL;
-            busqueda->prox->prev = busqueda;
+    struct Persona* p = *cabeza;
+    if (!p) return NULL;
+    else {
+        struct BusquedaPersonas* busqueda = NULL;
+        while (p) {
+            if (__private__nameMatch(p, fnames, lnames)) {
+                struct BusquedaPersonas* aux = busqueda;
+                busqueda = (struct BusquedaPersonas*) malloc(sizeof(struct BusquedaPersonas));
+                busqueda->valor = p;
+                busqueda->prox = aux;
+                busqueda->prox->prev = busqueda;
+            }
+            p = p->prox;
         }
-        p = p->prox;
+        return busqueda;
     }
-    return busqueda;
 }
 
-void eliminarPersona(struct Persona** cabezaPtr, char id[15]) {
-    struct Persona* cabeza = *cabezaPtr, * p = cabeza;
-    int i = 0;
+void eliminarPersona(struct Persona** cabeza, char id[15]) {
+    struct Persona* p = *cabeza;
     if (!p) return;
-    else while (p != cabeza || i == 0) {
-        i++;
+    else while (p) {
         if (stringIgualAString(p->id, id)) {
-            p->prev->prox = p->prox;
-            p->prox->prev = p->prev;
-            if (p == p->prox) {
-                *cabezaPtr = NULL;
-            }
+            if (p->prev) p->prev->prox = p->prox;
+            if (p->prox) p->prox->prev = p->prev;
             free(p);
             return;
         }
