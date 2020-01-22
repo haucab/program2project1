@@ -7,13 +7,15 @@
 struct Persona {
 	char id[15]; // ID puede ser Cedula o Pasaporte
 	char fnames[50], lnames[50], streetaddress[150], email[50], city[30], state[30], country[30], phoneNumber[20];
-	struct Persona* prev, * prox;
+	struct Persona* prevv, * proxx;
 };
 
 struct BusquedaPersonas {
     struct Persona* valor;
     struct BusquedaPersonas* prev, * prox;
 };
+
+typedef void (*PersonaLoopCallback)(struct Persona*, bool*, void*);
 
 /*private*/ struct Persona* __private__newPersona(
         char id[15], // ID puede ser Cedula o Pasaporte
@@ -30,8 +32,8 @@ struct BusquedaPersonas {
     strcpy_s(persona->country, 30, country);
     strcpy_s(persona->phoneNumber, 20, phoneNumber);
 
-    persona->prev = NULL;
-    persona->prox = NULL;
+    persona->prevv = NULL;
+    persona->proxx = NULL;
 
     return persona;
 }
@@ -41,7 +43,7 @@ ValidationError_Persona validatePersonaId(struct Persona** cabeza,
     struct Persona* p = *cabeza;
     while (p) {
         if (stringIgualAString(p->id, id)) return ERR_DUPLICATE_PERSON_ID;
-        p = p->prox;
+        p = p->proxx;
     }
     return PERSONA_OK;
 }
@@ -59,19 +61,19 @@ ValidationError_Persona agregarPersona(
     struct Persona* cabeza = *cabezaPtr, * p = cabeza;
     if (!cabeza) {
         *cabezaPtr = dato;
-        dato->prev = dato;
-        dato->prox = dato;
+        dato->prevv = dato;
+        dato->proxx = dato;
     } else {
-        while (p->prox != cabeza) {
+        while (p->proxx != cabeza) {
             if (strcmp(p->id, id) > 0) break;
-            p = p->prox;
+            p = p->proxx;
         }
 
-        struct Persona* aux = p->prev;
-        p->prev = dato;
-        dato->prev = aux;
-        dato->prox = p;
-        aux->prox = dato;
+        struct Persona* aux = p->prevv;
+        p->prevv = dato;
+        dato->prevv = aux;
+        dato->proxx = p;
+        aux->proxx = dato;
     }
     return PERSONA_OK;
 }
@@ -80,11 +82,12 @@ bool __private__person_exists(struct Persona* cabeza, char *idSender) {
     if (!cabeza) return false;
     if (stringIgualAString(cabeza->id, idSender)) return true;
 
-    struct Persona* p = cabeza->prox;
+    struct Persona* p = cabeza->proxx;
     while (p != cabeza) {
-        if (stringIgualAString(p->id, idSender))
-            return true;
-        p = p->prox;
+        int comparison = strcmp(p->id, idSender);
+        if (comparison > 0 /* p->id > id */) break;
+        else if (comparison == 0 /* p->id == id */) return true;
+        p = p->proxx;
     }
 
     return false;
@@ -94,12 +97,29 @@ struct Persona* consultarPersonaID(struct Persona** cabezaPtr, char id[15]) {
     if (!cabeza) return NULL;
     if (stringIgualAString(cabeza->id, id)) return cabeza;
 
-    struct Persona* p = cabeza->prox;
+    struct Persona* p = cabeza->proxx;
     while (p != cabeza) {
-        if (stringIgualAString(p->id, id)) return p;
-        p = p->prox;
+        int comparison = strcmp(p->id, id);
+        if (comparison > 0 /* p->id > id */) break;
+        else if (comparison == 0 /* p->id == id */) return p;
+        p = p->proxx;
     }
     return NULL;
+}
+
+void forEachPersona(struct Persona** cabezaPtr, PersonaLoopCallback callback, void* data) {
+    if (!cabezaPtr) return;
+
+    struct Persona* cabeza = *cabezaPtr, * p = cabeza;
+    if (!p) return;
+
+    int i = 0;
+    bool breakFlag = false;
+    while ((p != cabeza || i == 0) && !breakFlag) {
+        i++;
+        callback(p, &breakFlag, data);
+        p = p->proxx;
+    }
 }
 
 void printPersona(struct Persona* p) {
@@ -141,7 +161,7 @@ struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabezaPtr, char
         busqueda->prox->prev = busqueda;
     }
 
-    struct Persona* p = cabeza->prox;
+    struct Persona* p = cabeza->proxx;
     while (p != cabeza) {
         if (__private__nameMatch(p, fnames, lnames)) {
             struct BusquedaPersonas* aux = busqueda;
@@ -151,7 +171,7 @@ struct BusquedaPersonas* consultarPersonaNombre(struct Persona** cabezaPtr, char
             busqueda->prev = NULL;
             busqueda->prox->prev = busqueda;
         }
-        p = p->prox;
+        p = p->proxx;
     }
     return busqueda;
 }
@@ -163,15 +183,15 @@ void eliminarPersona(struct Persona** cabezaPtr, char id[15]) {
     else while (p != cabeza || i == 0) {
         i++;
         if (stringIgualAString(p->id, id)) {
-            p->prev->prox = p->prox;
-            p->prox->prev = p->prev;
-            if (p == p->prox) {
+            p->prevv->proxx = p->proxx;
+            p->proxx->prevv = p->prevv;
+            if (p == p->proxx) {
                 *cabezaPtr = NULL;
             }
             free(p);
             return;
         }
-        p = p->prox;
+        p = p->proxx;
     }
 }
 

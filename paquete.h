@@ -79,6 +79,7 @@ ValidationError_Paquete validatePaqueteCodeDelivery(struct Sucursal* cabeza, cha
     strcpy_s(parcel->codeDelivery, 25, codeDelivery);
     parcel->response = &response;
     forEachSucursal(cabeza, &__private__validatePaqueteCodeDelivery1, parcel);
+    parcel->codeDelivery[0] = '\0';
     free(parcel);
     return response;
 }
@@ -147,7 +148,7 @@ ValidationError_Paquete agregarPaquete(struct Sucursal* cabezaS, struct Persona*
     parcel->datoE = datoE;
     parcel->datoR = datoR;
 
-    forEachSucursal(cabezaS, &__private__agregarPaquete1, parcel);
+    forEachSucursal(s, &__private__agregarPaquete1, parcel);
 
     parcel->hasRecibo = NULL;
     parcel->hasEnvio  = NULL;
@@ -314,57 +315,65 @@ void consultarEnvioRecibo(struct Sucursal** cabeza, char codeDelivery[25], struc
     }
 }
 
+struct __eliminarEnvioStruct1 {
+    char** codeDelivery;
+};
+void __private__eliminarEnvio1(struct Sucursal* s, bool* breakFlag, void* data) {
+    struct __eliminarEnvioStruct1* parcel = (struct __eliminarEnvioStruct1*) data;
+    struct EnvioPaquete* e = s->sentPackages;
+    while (e && e->prox)  {
+        if (stringIgualAString(e->prox->codeDelivery, *(parcel->codeDelivery))) {
+            struct Date* d = e->dateDelivery;
+            e->dateDelivery = NULL;
+            free(d);
+
+            d = e->dateReceived;
+            e->dateReceived = NULL;
+            free(d);
+
+            struct EnvioPaquete* eaux = e->prox;
+            e->prox = eaux->prox;
+            if (eaux->prox) eaux->prox->prev = e;
+            free(eaux);
+        }
+        e = e->prox;
+    }
+    e = s->sentPackages;
+    if (e && stringIgualAString(e->codeDelivery, *(parcel->codeDelivery))) {
+        s->sentPackages = e->prox;
+        if (s->sentPackages) s->sentPackages->prev = NULL;
+        free(e);
+    }
+
+    // ---------------------------------------------------------------
+
+    struct ReciboPaquete* r = s->receivedPackages;
+    while (r && r->prox)  {
+        if (stringIgualAString(r->prox->codeDelivery, *(parcel->codeDelivery))) {
+            struct ReciboPaquete* eaux = r->prox;
+            r->prox = eaux->prox;
+            if (eaux->prox) eaux->prox->prev = r;
+            free(eaux);
+        }
+        r = r->prox;
+    }
+    r = s->receivedPackages;
+    if (r && stringIgualAString(r->codeDelivery, *(parcel->codeDelivery))) {
+        s->receivedPackages = r->prox;
+        if (s->receivedPackages) s->receivedPackages->prev = NULL;
+        free(r);
+    }
+}
 void eliminarEnvio(struct Sucursal** cabeza, char codeDelivery[25]) {
     struct Sucursal* s = *cabeza;
     if (!s) return;
-    else while (s) {
-        struct EnvioPaquete* e = s->sentPackages;
-        while (e && e->prox)  {
-            if (stringIgualAString(e->prox->codeDelivery, codeDelivery)) {
-                struct Date* d = e->dateDelivery;
-                e->dateDelivery = NULL;
-                free(d);
-
-                d = e->dateReceived;
-                e->dateReceived = NULL;
-                free(d);
-
-                struct EnvioPaquete* eaux = e->prox;
-                e->prox = eaux->prox;
-                if (eaux->prox) eaux->prox->prev = e;
-                free(eaux);
-            }
-            e = e->prox;
-        }
-        e = s->sentPackages;
-        if (e && stringIgualAString(e->codeDelivery, codeDelivery)) {
-            s->sentPackages = e->prox;
-            if (s->sentPackages) s->sentPackages->prev = NULL;
-            free(e);
-        }
-
-        // ---------------------------------------------------------------
-
-        struct ReciboPaquete* r = s->receivedPackages;
-        while (r && r->prox)  {
-            if (stringIgualAString(r->prox->codeDelivery, codeDelivery)) {
-                struct ReciboPaquete* eaux = r->prox;
-                r->prox = eaux->prox;
-                if (eaux->prox) eaux->prox->prev = r;
-                free(eaux);
-            }
-            r = r->prox;
-        }
-            r = s->receivedPackages;
-        if (r && stringIgualAString(r->codeDelivery, codeDelivery)) {
-            s->receivedPackages = r->prox;
-            if (s->receivedPackages) s->receivedPackages->prev = NULL;
-            free(r);
-        }
-
-        // ---------------------------------------------------------------
-
-        s = s->prox;
+    else {
+        struct __eliminarEnvioStruct1* parcel =
+                (struct __eliminarEnvioStruct1*) malloc(sizeof(struct __eliminarEnvioStruct1));
+        parcel->codeDelivery = &codeDelivery;
+        forEachSucursal(s, &__private__eliminarEnvio1, parcel);
+        parcel->codeDelivery = NULL;
+        free(parcel);
     }
 }
 

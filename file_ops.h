@@ -82,65 +82,77 @@ void fget_envios(const char* c1, struct Sucursal* cabezaS, struct Persona* cabez
     }
 }
 
+struct __fputs_envios_recorrepaquetes1 {
+    long cont;
+};
+void __private__fputs_envios_recorrepaquetes1(struct Sucursal* s, bool* breakFlag, void* data) {
+    struct __fputs_envios_recorrepaquetes1* parcel = (struct __fputs_envios_recorrepaquetes1*) data;
+    struct EnvioPaquete* e = s->sentPackages;
+    for (; e; (parcel->cont)++) e = e->prox;
+}
+void __private__fputs_envios_recorrepaquetes2(struct Sucursal* s, bool* breakFlag, void* data) {
+    FILE* f1 = (FILE*) data;
+    struct EnvioPaquete* e = s->sentPackages;
+    while (e) {
+        char buffer[10];
+        fputs_newline(s->code, f1);
+        fputs_newline(e->codeDestinationSucursal, f1);
+
+        // ---
+        itoa(e->dateDelivery->year, buffer, 10);
+        fputs_newline(buffer, f1);
+        itoa(e->dateDelivery->month, buffer, 10);
+        fputs_newline(buffer, f1);
+        itoa(e->dateDelivery->day, buffer, 10);
+        fputs_newline(buffer, f1);
+
+        itoa(e->dateReceived->year, buffer, 10);
+        fputs_newline(buffer, f1);
+        itoa(e->dateReceived->month, buffer, 10);
+        fputs_newline(buffer, f1);
+        itoa(e->dateReceived->day, buffer, 10);
+        fputs_newline(buffer, f1);
+
+        // ---
+        if (e->insured) fputs_newline("1", f1);
+        else fputs_newline("0", f1);
+
+        fputs_newline(e->description, f1);
+        fputs_newline(e->codeDelivery, f1);
+
+        sprintf_s(buffer, 10, "%llu", e->weightPackageGrams);
+        fputs_newline(buffer, f1);
+
+        fputs_newline(e->debitedCost, f1);
+
+        fputs_newline(e->idSender, f1);
+
+        fputs_newline(e->idReceiver, f1);
+
+        e = e->prox;
+    }
+}
 void fputs_envios(struct Sucursal* cabeza, const char* c1) {
     FILE* f1;
     fopen_s(&f1, c1, "w");
     if (f1 && (ferror(f1) == 0)) {
 		struct Sucursal* s = cabeza;
 		struct EnvioPaquete* e;
-		long cont = 0;
-		while (s) {
-			e = s->sentPackages;
-			for (; e; cont++) e = e->prox;
-			s = s->prox;
-		}
+
+		struct __fputs_envios_recorrepaquetes1* parcel =
+                (struct __fputs_envios_recorrepaquetes1*) malloc(sizeof(struct __fputs_envios_recorrepaquetes1));
+		parcel->cont = 0;
+		forEachSucursal(cabeza, &__private__fputs_envios_recorrepaquetes1, parcel);
+        long cont = parcel->cont;
+        free(parcel);
+        parcel = NULL;
 
 		char buffer[10];
 		itoa(cont, buffer, 10);
 		fputs_newline(buffer, f1);
 
 		s = cabeza;
-		while (s) {
-            e = s->sentPackages;
-			while (e) {
-				fputs_newline(s->code, f1);
-				fputs_newline(e->codeDestinationSucursal, f1);
-
-		        // ---
-				itoa(e->dateDelivery->year, buffer, 10);
-				fputs_newline(buffer, f1);
-				itoa(e->dateDelivery->month, buffer, 10);
-		        fputs_newline(buffer, f1);
-				itoa(e->dateDelivery->day, buffer, 10);
-				fputs_newline(buffer, f1);
-
-				itoa(e->dateReceived->year, buffer, 10);
-		        fputs_newline(buffer, f1);
-				itoa(e->dateReceived->month, buffer, 10);
-				fputs_newline(buffer, f1);
-				itoa(e->dateReceived->day, buffer, 10);
-		        fputs_newline(buffer, f1);
-				
-				// ---
-				if (e->insured) fputs_newline("1", f1);
-				else fputs_newline("0", f1);
-
-				fputs_newline(e->description, f1);
-				fputs_newline(e->codeDelivery, f1);
-
-				sprintf_s(buffer, 10, "%llu", e->weightPackageGrams);
-	            fputs_newline(buffer, f1);
-
-	            fputs_newline(e->debitedCost, f1);
-
-				fputs_newline(e->idSender, f1);
-
-				fputs_newline(e->idReceiver, f1);
-
-	            e = e->prox;
-			}
-			s = s->prox;
-		}
+		forEachSucursal(s, &__private__fputs_envios_recorrepaquetes2, f1);
 
         fclose(f1);
     }
@@ -196,32 +208,42 @@ struct Persona* fgets_personas(const char* c1) {
     return NULL;
 }
 
-void fputs_personas(struct Persona* cabeza, const char* c1) {
+struct __fputs_personas1 {
+    long cont;
+};
+void __private__fputs_personas1(struct Persona* e, bool* breakFlag, void* data) {
+    struct __fputs_personas1* parcel = (struct __fputs_personas1*) data;
+    (parcel->cont)++;
+}
+void __private__fputs_personas2(struct Persona* e, bool* breakFlag, void* data) {
+    FILE* f1 = (FILE*) data;
+    fputs_newline(e->id, f1);
+    fputs_newline(e->fnames, f1);
+    fputs_newline(e->lnames, f1);
+    fputs_newline(e->streetaddress, f1);
+    fputs_newline(e->email, f1);
+    fputs_newline(e->city, f1);
+    fputs_newline(e->state, f1);
+    fputs_newline(e->country, f1);
+    fputs_newline(e->phoneNumber, f1);
+}
+void fputs_personas(struct Persona** cabeza, const char* c1) {
     FILE* f1;
     fopen_s(&f1, c1, "w");
     if (f1 && (ferror(f1) == 0)) {
-		struct Persona* e = cabeza;
-		long cont;
-		for (cont = 0; e; cont++) e = e->prox;
+        struct __fputs_personas1* parcel =
+                (struct __fputs_personas1*) malloc(sizeof(struct __fputs_personas1));
+        parcel->cont = 0;
+        forEachPersona(cabeza, &__private__fputs_personas1, parcel);
+        long cont = parcel->cont;
+        free(parcel);
+        parcel = NULL;
 
 		char buffer[10];
 		itoa(cont, buffer, 10);
 		fputs_newline(buffer, f1);
 
-		e = cabeza;
-		while (e) {
-			fputs_newline(e->id, f1);
-			fputs_newline(e->fnames, f1);
-			fputs_newline(e->lnames, f1);
-			fputs_newline(e->streetaddress, f1);
-			fputs_newline(e->email, f1);
-			fputs_newline(e->city, f1);
-			fputs_newline(e->state, f1);
-			fputs_newline(e->country, f1);
-			fputs_newline(e->phoneNumber, f1);
-
-            e = e->prox;
-		}
+		forEachPersona(cabeza, &__private__fputs_personas2, f1);
 
         fclose(f1);
     }
@@ -274,31 +296,41 @@ struct Sucursal* fgets_sucursales(const char* c1) {
     return NULL;
 }
 
+struct __fputs_sucursales1 {
+    long cont;
+};
+void __private__fputs_sucursales1(struct Sucursal* e, bool* breakFlag, void* data) {
+    struct __fputs_personas1* parcel = (struct __fputs_personas1*) data;
+    (parcel->cont)++;
+}
+void __private__fputs_sucursales2(struct Sucursal* e, bool* breakFlag, void* data) {
+    FILE* f1 = (FILE*) data;
+    fputs_newline(e->code, f1);
+    fputs_newline(e->name, f1);
+    fputs_newline(e->streetaddress, f1);
+    fputs_newline(e->email, f1);
+    fputs_newline(e->city, f1);
+    fputs_newline(e->state, f1);
+    fputs_newline(e->country, f1);
+    fputs_newline(e->phoneNumber, f1);
+}
 void fputs_sucursales(struct Sucursal* cabeza, const char* c1) {
     FILE* f1;
     fopen_s(&f1, c1, "w");
     if (f1 && (ferror(f1) == 0)) {
-		struct Sucursal* e = cabeza;
-		long cont;
-		for (cont = 0; e; cont++) e = e->prox;
+        struct __fputs_sucursales1* parcel =
+                (struct __fputs_sucursales1*) malloc(sizeof(struct __fputs_sucursales1));
+        parcel->cont = 0;
+        forEachSucursal(cabeza, &__private__fputs_sucursales1, parcel);
+        long cont = parcel->cont;
+        free(parcel);
+        parcel = NULL;
 
 		char buffer[10];
 		itoa(cont, buffer, 10);
 		fputs_newline(buffer, f1);
 
-		e = cabeza;
-		while (e) {
-			fputs_newline(e->code, f1);
-			fputs_newline(e->name, f1);
-			fputs_newline(e->streetaddress, f1);
-			fputs_newline(e->email, f1);
-			fputs_newline(e->city, f1);
-			fputs_newline(e->state, f1);
-			fputs_newline(e->country, f1);
-			fputs_newline(e->phoneNumber, f1);
-
-            e = e->prox;
-		}
+        forEachSucursal(cabeza, &__private__fputs_sucursales2, f1);
 
         fclose(f1);
     }

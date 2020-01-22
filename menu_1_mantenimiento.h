@@ -79,18 +79,18 @@ void menuMantenimientoPersonas(struct Persona** cabezaP, struct Sucursal** cabez
         switch (opc) {
             case 1:
                 menuMantenimientoPersonas_op1(cabezaP);
-				fputs_personas(*cabezaP, "personas.dat");
+				fputs_personas(cabezaP, "personas.dat");
                 break;
             case 2:
                 menuMantenimientoPersonas_op2(cabezaP);
                 break;
             case 3:
                 menuMantenimientoPersonas_op3(cabezaP);
-				fputs_personas(*cabezaP, "personas.dat");
+				fputs_personas(cabezaP, "personas.dat");
                 break;
             case 4:
                 menuMantenimientoPersonas_op4(cabezaP, cabezaS);
-				fputs_personas(*cabezaP, "personas.dat");
+				fputs_personas(cabezaP, "personas.dat");
                 break;
             case 5:
                 menuMantenimientoPersonas_op5(cabezaP);
@@ -359,6 +359,22 @@ void menuMantenimientoPersonas_op3(struct Persona** cabeza) {
 }
 
 // v - Eliminar persona
+struct __menuMantenimientoPersonas_op4_1 {
+    char** id;
+    struct Sucursal** cabezaS;
+};
+void __private__menuMantenimientoPersonas_op4_1(struct Sucursal* s, bool* breakFlag, void* data) {
+    struct __menuMantenimientoPersonas_op4_1* parcel = (struct __menuMantenimientoPersonas_op4_1*) data;
+    struct EnvioPaquete* paquete = s->sentPackages;
+    while (paquete) {
+        if (stringIgualAString(paquete->idSender, *(parcel->id))) {
+            paquete = paquete->prox;
+            eliminarEnvio(parcel->cabezaS, *(parcel->id));
+        } else {
+            paquete = paquete->prox;
+        }
+    }
+}
 void menuMantenimientoPersonas_op4(struct Persona** cabezaP, struct Sucursal** cabezaS) {
     system("cls");
     printf("ELIMINAR PERSONA\n\n");
@@ -383,18 +399,11 @@ void menuMantenimientoPersonas_op4(struct Persona** cabezaP, struct Sucursal** c
             printf("INFO: Procesando...\n");
             eliminarPersona(cabezaP, id);
             struct Sucursal* s = *cabezaS;
-            while (s) {
-                struct EnvioPaquete* paquete = s->sentPackages;
-                while (paquete) {
-                    if (stringIgualAString(paquete->idSender, id)) {
-                        paquete = paquete->prox;
-                        eliminarEnvio(cabezaS, id);
-                    } else {
-                        paquete = paquete->prox;
-                    }
-                }
-                s = s->prox;
-            }
+            struct __menuMantenimientoPersonas_op4_1* parcel =
+                    (struct __menuMantenimientoPersonas_op4_1*) malloc(sizeof(struct __menuMantenimientoPersonas_op4_1));
+            parcel->id = (char **) &id;
+            parcel->cabezaS = cabezaS;
+            forEachSucursal(s, &__private__menuMantenimientoPersonas_op4_1, parcel);
             printf("INFO: Operacion realizada exitosamente.\n");
         } else {
             printf("INFO: Operacion cancelada por el usuario.\n");
@@ -648,6 +657,8 @@ void __restricted__MenuMantenimientoEliminarSucursalPrintf(void* sucursal) {
     printf(" > ");
 }
 void __restricted__moveToOtherSucursal(struct Sucursal* sucursal, char newcode[25]) {
+    // TODO: make callback pass the "cabeza" Sucursal** as an aditional argument.
+
     char oldcode[25];
     strcpy_s(oldcode, 25, sucursal->code);
 

@@ -117,8 +117,8 @@ void forEachSucursal(struct Sucursal* p, SucursalLoopCallback callback, void* da
     bool breakFlag = false;
     callback(p, &breakFlag, data);
     if (breakFlag) return;
-    forEachSucursal(p->izq, callback);
-    forEachSucursal(p->der, callback);
+    forEachSucursal(p->izq, callback, data);
+    forEachSucursal(p->der, callback, data);
 }
 
 void __private__mayorDeMenores(struct Sucursal** cabeza, struct Sucursal** curr) {
